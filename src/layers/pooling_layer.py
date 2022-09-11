@@ -1,4 +1,4 @@
-from ..utils.utils import flatten
+from utils.utils import flatten
 
 
 class PoolingLayer:
