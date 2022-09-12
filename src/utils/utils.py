@@ -1,3 +1,6 @@
+import pickle
+
+
 def flatten(arr):
     # assumption: arrays have uniform depth
 
@@ -19,3 +22,13 @@ def flatten(arr):
 
         arr = [e for subarr in arr for e in subarr]
         return flatten(arr)
+
+
+def save(model, filepath="./bin/model.pkl"):
+    with open(filepath, "wb") as f:
+        pickle.dump(model, f)
+
+
+def load(filepath):
+    with open(filepath, "rb") as f:
+        return pickle.load(f)
