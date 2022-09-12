@@ -1,5 +1,5 @@
+import numpy as np
 import pickle
-
 
 def flatten(arr):
     # assumption: arrays have uniform depth
@@ -23,6 +23,11 @@ def flatten(arr):
         arr = [e for subarr in arr for e in subarr]
         return flatten(arr)
 
+def sigmoid(x):
+    return 1/(1 + np.exp(-x))
+
+def ReLU(x):
+    return np.maximum(0, x)
 
 def save(model, filepath="./bin/model.pkl"):
     with open(filepath, "wb") as f:
