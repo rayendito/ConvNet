@@ -3,7 +3,7 @@ import numpy as np
 from utils.utils import sigmoid, ReLU
 
 class DenseLayer:
-    def __init__(self, batch_size, input_size, output_size, activation):
+    def __init__(self, batch_size, input_size, output_size, activation, testing=False):
         # type checking
         if (not isinstance(batch_size, int)):
             raise TypeError('DenseLayer batch_size must be an integer')
@@ -25,8 +25,8 @@ class DenseLayer:
         else:
             raise ValueError('Unknown activation function'+self.activation)
         
-        self.weights = self._initialize_weights(input_size, output_size)
-        self.biases = self._initialize_biases(output_size)
+        self.weights = self._test_initialize_weights(input_size, output_size) if (testing) else self._initialize_weights(input_size, output_size)
+        self.biases = self._test_initialize_biases(output_size) if (testing) else self._initialize_biases(output_size)
         self.inputs = None
         self.net = None
         self.outputs = None
@@ -45,9 +45,15 @@ class DenseLayer:
 
     def _initialize_weights(self, input_size, output_size):
         return np.random.rand(output_size,input_size)
+    
+    def _test_initialize_weights(self, input_size, output_size):
+        return np.array([[0.1]*input_size]*output_size)
 
     def _initialize_biases(self, output_size):
         return np.random.rand(output_size)
+
+    def _test_initialize_biases(self, output_size):
+        return np.array([0.2]*output_size)
 
     def _calc_inputs_v_weights(self):
         return np.transpose(np.matmul(self.weights, np.transpose(self.inputs)))
