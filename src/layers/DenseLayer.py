@@ -1,6 +1,6 @@
 from platform import release
 import numpy as np
-from utils.utils import sigmoid, ReLU
+from src.utils.utils import sigmoid, ReLU
 
 class DenseLayer:
     def __init__(self, batch_size, input_size, output_size, activation, testing=False):

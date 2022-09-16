@@ -1,4 +1,4 @@
-from layers.DenseLayer import DenseLayer
+from src.layers.DenseLayer import DenseLayer
 import numpy as np
 
 dense = DenseLayer(batch_size=2, input_size=5, output_size=3, activation='relu')
