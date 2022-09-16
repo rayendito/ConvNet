@@ -1,6 +1,6 @@
-from ConvNet.src.model import Model
-from ConvNet.src.layers.pooling_layer import PoolingLayer
-from ConvNet.src.utils.utils import save
+from src.model import Model
+from src.layers.pooling_layer import PoolingLayer
+from src.utils.utils import save
 
 channel_ = [[e+i for e in [1, 2, 3, 4, 5, 6]] for i in range(6)]
 channels_ = [[[e+i*11 for e in row] for row in channel_] for i in range(3)]
