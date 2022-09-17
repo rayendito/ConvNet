@@ -1,5 +1,6 @@
 import os
 from PIL import Image
+import numpy as np
 
 def load_cats_and_dogs():
     image_data = {
@@ -20,9 +21,9 @@ def load_cats_and_dogs():
             image_data['labels'].append(class_code[kind])
     return image_data
 
-def load_one_image(path, width = 150, height = 150):
+def load_one_image(path, width = 100, height = 100):
     im = Image.open(r"{}".format(path))
     im.resize((width, height))
     pixels = list(im.getdata())
-    pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
+    pixels = np.array([pixels[i * width:(i + 1) * width] for i in range(height)])
     return pixels
