@@ -50,13 +50,13 @@ class DenseLayer:
             raise ValueError('dimension mismatch expected of size {}, got {}'.format((self.batch_size, self.input_size), input_dim))
 
     def _initialize_weights(self, input_size, output_size):
-        return np.random.rand(output_size,input_size)
+        return -1+2*np.random.rand(output_size,input_size)
     
     def _test_initialize_weights(self, input_size, output_size):
         return np.array([[0.1]*input_size]*output_size)
 
     def _initialize_biases(self, output_size):
-        return np.random.rand(output_size)
+        return -1+2*np.random.rand(output_size)
 
     def _test_initialize_biases(self, output_size):
         return np.array([0.2]*output_size)

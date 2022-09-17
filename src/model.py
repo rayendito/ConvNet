@@ -17,6 +17,11 @@ class Model:
 
         return x
 
+    def predict(self, inputs):
+        self.outputs = self.forwardProp(inputs)
+
+        return np.round(self.outputs)
+
     @staticmethod
     def checkShape(x, layer):
         if ("input_shape" in dir(layer)):
