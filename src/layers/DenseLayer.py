@@ -3,7 +3,7 @@ import numpy as np
 from src.utils.utils import sigmoid, ReLU
 
 class DenseLayer:
-    def __init__(self, batch_size, input_size, output_size, activation, testing=False):
+    def __init__(self, output_size, activation, batch_size=10, input_size=10, testing=False):
         # type checking
         if (not isinstance(batch_size, int)):
             raise TypeError('DenseLayer batch_size must be an integer')
@@ -17,6 +17,7 @@ class DenseLayer:
         self.batch_size = batch_size
         self.input_size = input_size
         self.output_size = output_size
+        self.testing = testing
         
         if(activation == 'sigmoid'):
             self.activation = sigmoid
@@ -32,7 +33,7 @@ class DenseLayer:
         self.outputs = None
     
     def calculate(self, inputs):
-        self._check_input(inputs)
+        self._resize_batch_and_input_size_if_necessary(inputs)
         self.inputs = np.array(inputs)
         
         # check batch size
@@ -44,10 +45,13 @@ class DenseLayer:
         self.outputs = self._run_activation_function(nets)
         return self.outputs
 
-    def _check_input(self, inputs):
-        input_dim = np.array(inputs, dtype=object).shape
-        if(input_dim != (self.batch_size, self.input_size)):
-            raise ValueError('dimension mismatch expected of size {}, got {}'.format((self.batch_size, self.input_size), input_dim))
+    def _resize_batch_and_input_size_if_necessary(self, inputs):
+        inp_batch_size, inp_input_size = np.array(inputs, dtype=object).shape
+        if((inp_batch_size, inp_input_size) != (self.batch_size, self.input_size)):
+            self.batch_size = inp_batch_size
+            self.input_size = inp_input_size
+            self.weights = self._test_initialize_weights(inp_input_size, self.output_size) if (self.testing) else self._initialize_weights(inp_input_size, self.output_size)
+            self.biases = self._test_initialize_biases(self.output_size) if (self.testing) else self._initialize_biases(self.output_size)
 
     def _initialize_weights(self, input_size, output_size):
         return np.random.rand(output_size,input_size)
