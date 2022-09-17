@@ -20,9 +20,9 @@ def load_cats_and_dogs():
             image_data['labels'].append(class_code[kind])
     return image_data
 
-def load_one_image(path):
+def load_one_image(path, width = 150, height = 150):
     im = Image.open(r"{}".format(path))
+    im.resize((width, height))
     pixels = list(im.getdata())
-    width, height = im.size
     pixels = [pixels[i * width:(i + 1) * width] for i in range(height)]
     return pixels
