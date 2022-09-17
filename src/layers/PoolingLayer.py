@@ -1,4 +1,4 @@
-from src.utils.utils import flatten
+import numpy as np
 
 
 class PoolingLayer:
@@ -37,26 +37,29 @@ class PoolingLayer:
     def calculate(self, inputs):
         # public method calculate
         self.inputs = inputs
-        self.outputs = self.pool(self.inputs)
+        self.outputs = self._pool(self.inputs)
 
         return self.outputs
 
-    def pool(self, inputs):
+    def _pool(self, inputs):
         # POOLING PIPELINE
 
         # prepare empty output matrix
-        outputs = [[[[0 for _ in range(0, len(channel[0]) - len(channel[0]) % self.size, self.stride)] for _ in range(
-            0, len(channel) - len(channel) % self.size, self.stride)] for channel in channels] for channels in inputs]
+        outputs = [[[[0 for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]) - len(channels[0]) % self.size, self.stride)] for _ in range(0, len(channels) - len(channels) % self.size, self.stride)] for channels in inputs]
+
+        # outputs = [[[[0 for _ in range(0, len(channel[0]) - len(channel[0]) % self.size, self.stride)] for _ in range(
+        #     0, len(channel) - len(channel) % self.size, self.stride)] for channel in channels] for channels in inputs]
 
         # iterate over inputs
         for cs, channels in enumerate(inputs):
-            for c, channel in enumerate(channels):
-                for i in range(0, len(channel), self.stride):
+            for c in range(len(channels[0][0])):
+                for i in range(0, len(channels), self.stride):
                     # iterate through columns with stride
-                    if (i + self.size <= len(channel)):
-                        for j in range(0, len(channel[i]), self.stride):
+                    if (i + self.size <= len(channels)):
+                        for j in range(0, len(channels[i]), self.stride):
                             # iterate through rows with stride
-                            if (j + self.size <= len(channel[i])):
+                            if (j + self.size <= len(channels[i])):
+                                
                                 # prepare matrix of current receptive field
                                 currMatrix = [
                                     [0 for _ in range(self.size)] for _ in range(self.size)]
@@ -64,11 +67,10 @@ class PoolingLayer:
                                 # copy current receptive field
                                 for a in range(self.size):
                                     for b in range(self.size):
-                                        currMatrix[a][b] = channel[i+a][j+b]
+                                        currMatrix[a][b] = channels[i+a][j+b][c]
 
                                 # calculate pooling result
-                                outputs[cs][c][i//self.stride][j //
-                                                               self.stride] = self.poolingFunction(currMatrix)
+                                outputs[cs][i//self.stride][j // self.stride][c] = self.poolingFunction(currMatrix)
 
         return outputs
 
@@ -76,11 +78,11 @@ class PoolingLayer:
     def maxPool(matrixSlice):
         # max of all elements in slice
 
-        return max(flatten(matrixSlice))
+        return max(np.array(matrixSlice).flatten())
 
     @staticmethod
     def averagePool(matrixSlice):
         # average of all elements in slice
 
-        flatMatrix = flatten(matrixSlice)
+        flatMatrix = np.array(matrixSlice).flatten()
         return sum(flatMatrix)/len(flatMatrix)

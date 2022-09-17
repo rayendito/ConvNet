@@ -1,2 +1,4 @@
+from .ConvLayer import ConvLayer
 from .DenseLayer import DenseLayer
-from .pooling_layer import PoolingLayer
+from .FlattenLayer import FlattenLayer
+from .PoolingLayer import PoolingLayer
