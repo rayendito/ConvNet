@@ -1,10 +1,16 @@
 from src.model import Model
-from src.layers.pooling_layer import PoolingLayer
+from src.layers.PoolingLayer import PoolingLayer
 from src.utils.utils import save
 
-channel_ = [[e+i for e in [1, 2, 3, 4, 5, 6]] for i in range(6)]
-channels_ = [[[e+i*11 for e in row] for row in channel_] for i in range(3)]
-dummy_data_ = [channels_ for i in range(5)]
+
+channels_ = [[[i+j, i+j+11, i+j+22] for i in range(1, 7)] for j in range(6)]
+dummy_data_ = [channels_ for _ in range(5)]
+
+# for c in range(3):
+#     for e1 in dummy_data_[0]:
+#         for e2 in e1:
+#             print(e2[c], end="\t")
+#         print()
 
 model = Model()
 model.addLayer(PoolingLayer(2, "MAX"))

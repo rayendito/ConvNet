@@ -1,3 +1,5 @@
+import numpy as np
+
 class Model:
     def __init__(self):
         self.layers = []
@@ -7,12 +9,23 @@ class Model:
 
     def forwardProp(self, inputs):
         self.inputs = inputs
-        x = self.inputs
+        x = np.array(self.inputs)
 
         for layer in self.layers:
-            x = layer.calculate(x)
+            if Model.checkShape(x, layer):
+                x = layer.calculate(x)
 
         return x
+
+    @staticmethod
+    def checkShape(x, layer):
+        if ("input_shape" in dir(layer)):
+            return x.shape == layer.input_shape
+        elif ("batch_size" in dir(layer)):
+            return len(x) == layer.batch_size
+        else:
+            return True
+
 
     def backProp(self, inputs):
         # TODO: Implement mini batch stochastic gradient descent backpropagation
