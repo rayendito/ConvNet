@@ -32,6 +32,7 @@ class DenseLayer:
         self.outputs = None
     
     def calculate(self, inputs):
+        self._check_input(inputs)
         self.inputs = np.array(inputs)
         
         # check batch size
@@ -42,6 +43,11 @@ class DenseLayer:
         nets = self._add_biases(inputs_times_weights)
         self.outputs = self._run_activation_function(nets)
         return self.outputs
+
+    def _check_input(self, inputs):
+        input_dim = np.array(inputs, dtype=object).shape
+        if(input_dim != (self.batch_size, self.input_size)):
+            raise ValueError('dimension mismatch expected of size {}, got {}'.format((self.batch_size, self.input_size), input_dim))
 
     def _initialize_weights(self, input_size, output_size):
         return np.random.rand(output_size,input_size)
