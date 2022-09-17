@@ -31,6 +31,10 @@ class ConvLayer:
         image = np.pad(image, ((self.padding, self.padding), (self.padding, self.padding), (0, 0)), 'constant')
         # Get shapes
         H, W, C = self.input_shape
+        # Get image shape
+        Hi, Wi, Ci = image.shape
+        if( Hi != H or Wi != W or Ci != C):
+            raise ValueError('dimension mismatch expected of size {}, got {}'.format((H, W, C), (Hi, Wi, Ci)))
         F = self.n_filters
         kH, kW = self.kernel_size, self.kernel_size
         # Compute output shape
