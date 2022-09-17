@@ -19,8 +19,12 @@ class Model:
 
     def predict(self, inputs):
         self.outputs = self.forwardProp(inputs)
+        self.preds = np.round(self.outputs)
 
-        return np.round(self.outputs)
+        if (len(self.preds[0]) == 1):
+            self.preds = self.preds.flatten()
+        
+        return self.preds
 
     @staticmethod
     def checkShape(x, layer):
