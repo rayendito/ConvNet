@@ -33,7 +33,9 @@ def save(model, filepath="./bin/model.pkl"):
     with open(filepath, "wb") as f:
         pickle.dump(model, f)
 
-
 def load(filepath):
     with open(filepath, "rb") as f:
         return pickle.load(f)
+
+def calculate_error(predicted, actual):
+    return 0.5*(sum([(predicted[i]-actual[i])**2 for i in range(len(predicted))]))

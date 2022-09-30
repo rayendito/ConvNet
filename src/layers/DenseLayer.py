@@ -3,6 +3,8 @@ import numpy as np
 from src.utils.utils import sigmoid, ReLU
 
 class DenseLayer:
+    # MILESTONE A
+
     def __init__(self, output_size, activation, batch_size=10, input_size=10, testing=False):
         # type checking
         if (not isinstance(batch_size, int)):
@@ -73,3 +75,50 @@ class DenseLayer:
 
     def _run_activation_function(self, nets):
         return np.vectorize(self.activation)(nets)
+
+    # MILESTONE B
+    def update_weights(self, lr, actual):
+        if(self.outputs.any() == None):
+            raise ValueError('Layer has no output, run forward propagation first')
+        error_term = self._error_term(actual)
+
+        for idx, inp in enumerate(self.inputs):
+            err_term_on_that_input = error_term[idx]
+
+            weight_updates = []
+            for element in inp:
+                weight_update = lr*element*err_term_on_that_input
+                weight_updates.append(weight_update)
+
+            self.weights += np.transpose(weight_updates)
+
+        #TODO: delete wleowleowleo
+        print(self.weights)
+
+    def _error_term(self, actual):
+        error_function_derivative = self._error_function_derivative(actual)
+        output_function_derivative = self._sigmoid_output_function_derivative() if self.activation == 'sigmoid' else self._relu_output_function_derivative()
+        return -1*error_function_derivative*output_function_derivative
+
+    def _error_function_derivative(self, actual):
+        return -1 * np.array(np.array(actual)-self.outputs)
+
+    def _sigmoid_output_function_derivative(self):
+        return self.outputs*(1-self.outputs)
+
+    def _relu_output_function_derivative(self):
+        #TODO: change to actually implement the derivative of the relu function :D
+        return self.outputs*(1-self.outputs)
+
+
+# my star, my perfect silence
+# ===================
+#        ____
+#        |  |
+#      __|__|__
+#      ( ' > ') ? 
+#      /   _  \
+#     /:  / \ ;\ 
+#      \  \_/ /
+#       vv--vv
+# ===================
