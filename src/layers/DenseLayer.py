@@ -5,7 +5,7 @@ from src.utils.utils import sigmoid, ReLU
 class DenseLayer:
     # MILESTONE A
 
-    def __init__(self, output_size, activation, batch_size=10, input_size=10, testing=False):
+    def __init__(self, output_size, activation, batch_size=10, input_size=10, testing=False, is_output_layer=True):
         # type checking
         if (not isinstance(batch_size, int)):
             raise TypeError('DenseLayer batch_size must be an integer')
@@ -20,6 +20,7 @@ class DenseLayer:
         self.input_size = input_size
         self.output_size = output_size
         self.testing = testing
+        self.is_output_layer = is_output_layer
         
         if(activation == 'sigmoid'):
             self.activation = sigmoid
@@ -33,6 +34,7 @@ class DenseLayer:
         self.inputs = None
         self.net = None
         self.outputs = None
+        self.error_term = None
     
     def calculate(self, inputs):
         self._resize_batch_and_input_size_if_necessary(inputs)
@@ -77,31 +79,58 @@ class DenseLayer:
         return np.vectorize(self.activation)(nets)
 
     # MILESTONE B
-    def update_weights(self, lr, actual):
+    def update_weights(self, lr, actual=None, preceding_error_term=None, preceding_weights=None):
         if(self.outputs.any() == None):
-            raise ValueError('Layer has no output, run forward propagation first')
-        error_term = self._error_term(actual)
+            raise ValueError('layer has no output, run forward propagation first')
+
+        if(self.is_output_layer):
+            if(actual is None):
+                raise ValueError('output layer weight update requires actual values of the prediction')
+            error_term = self._calculate_error_term_output(actual)
+        else:
+            if(preceding_error_term is None or preceding_weights is None):
+                raise ValueError('hidden layer weight update requires preceding error terms and preceding weights')
+            error_term = self._calculate_error_term_hidden(preceding_error_term, preceding_weights)
 
         for idx, inp in enumerate(self.inputs):
             err_term_on_that_input = error_term[idx]
-
             weight_updates = []
             for element in inp:
                 weight_update = lr*element*err_term_on_that_input
                 weight_updates.append(weight_update)
-
             self.weights += np.transpose(weight_updates)
 
         #TODO: delete wleowleowleo
         print(self.weights)
 
-    def _error_term(self, actual):
-        error_function_derivative = self._error_function_derivative(actual)
+    # OUTPUT LAYER ERROR TERM
+
+    def _calculate_error_term_output(self, actual):
         output_function_derivative = self._sigmoid_output_function_derivative() if self.activation == 'sigmoid' else self._relu_output_function_derivative()
-        return -1*error_function_derivative*output_function_derivative
+        error_function_derivative = self._error_function_derivative(actual)
+        self.error_term = -1*output_function_derivative*error_function_derivative
+        return self.error_term
 
     def _error_function_derivative(self, actual):
-        return -1 * np.array(np.array(actual)-self.outputs)
+        error_mean = np.array(np.array(actual)-self.outputs).mean(0)
+        return -1 * error_mean
+
+    # HIDDEN LAYER ERROR TERM
+
+    def _calculate_error_term_hidden(self, preceding_error_term, preceding_weights):
+        output_function_derivative = self._sigmoid_output_function_derivative() if self.activation == 'sigmoid' else self._relu_output_function_derivative()
+        sum_expression = self._calculate_sum_expression(preceding_error_term, preceding_weights)
+        self.error_term = -1*output_function_derivative*sum_expression
+        return self.error_term
+
+    def _calculate_sum_expression(self, preceding_error_term, preceding_weights):
+        sum_expressions = []
+        preceding_weights = np.transpose(preceding_weights)
+        for err in preceding_error_term:
+            sum_expressions.append([np.dot(err, weight) for weight in preceding_weights])
+        return -1*np.array(sum_expressions)
+    
+    # ACTIVATION FUNCTION DERIVATIVE
 
     def _sigmoid_output_function_derivative(self):
         return self.outputs*(1-self.outputs)
@@ -110,6 +139,15 @@ class DenseLayer:
         #TODO: change to actually implement the derivative of the relu function :D
         return self.outputs*(1-self.outputs)
 
+    # GETTER
+    def get_output(self):
+        return self.outputs
+
+    def get_error_terms(self):
+        return self.error_term
+
+    def get_weights(self):
+        return self.weights
 
 # my star, my perfect silence
 # ===================

@@ -1,29 +1,44 @@
 from src.layers.DenseLayer import DenseLayer
 import numpy as np
 
-output_size = 3
-input_size = 5
-
-dense = DenseLayer(output_size=output_size, batch_size=3, input_size=input_size, activation='sigmoid')
-
+lr = 0.02
 inputs = np.array([
     [4,4,4,4,4],
     [6,6,6,6,6],
     [8,8,8,8,8],
 ])
-
-# MILESTONE B TESTING REGION
-lr = 0.2
 actual = [
     [1,0,0],
     [0,1,0],
     [0,1,0],
 ]
-print('WEIGHTS BEFORE')
-print(dense.weights)
 
-print('RESULTS')
-print(dense.calculate(inputs=inputs))
+hidden_layer = DenseLayer(output_size=5, batch_size=3, input_size=5, activation='sigmoid', is_output_layer=False)
+output_layer = DenseLayer(output_size=3, batch_size=3, input_size=5, activation='sigmoid')
 
-print('WEIGHTS AFTER')
-dense.update_weights(lr, actual)
+# FORWARD PROP
+hidden_output = hidden_layer.calculate(inputs)
+output_output = output_layer.calculate(hidden_output)
+
+print('HIDDEN LAYER RESULTS')
+# print(hidden_output)
+print('OUTPUT LAYER RESULTS')
+# print(output_output)
+
+# BACK PROP
+print('OUTPUT LAYER WEIGHT AFTER UPDATE WEIGHT')
+output_layer.update_weights(lr, actual=actual)
+print('OUTPUT LAYER ERROR TERMS')
+print(output_layer.get_error_terms())
+
+preced_weights = output_layer.get_weights()
+preced_err_terms = output_layer.get_error_terms()
+
+print(preced_weights.shape)
+print(preced_err_terms.shape)
+
+print('HIDDEN WEIGHTS BEFORE')
+print(hidden_layer.weights)
+
+print('HIDDEN WEIGHTS AFTER')
+hidden_layer.update_weights(lr, preceding_error_term=preced_err_terms, preceding_weights=preced_weights)
