@@ -136,8 +136,10 @@ class DenseLayer:
         return self.outputs*(1-self.outputs)
 
     def _relu_output_function_derivative(self):
-        #TODO: change to actually implement the derivative of the relu function :D
-        return self.outputs*(1-self.outputs)
+        return np.vectorize(self._relu_derivative)(self.outputs)
+    
+    def _relu_derivative(val):
+        return 0 if val < 0 else 1
 
     # GETTER
     def get_output(self):
