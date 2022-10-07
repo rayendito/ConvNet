@@ -14,6 +14,7 @@ class ConvLayer:
         self.bias = np.random.rand(self.n_filters)
         self.input = []
         self.output = []
+        self.layer_type = "Convolution"
 
     
     def convolution(self, image):

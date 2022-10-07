@@ -33,6 +33,8 @@ class PoolingLayer:
             self.stride = size
         else:
             self.stride = stride
+        
+        self.layer_type = "Pooling"
 
     def calculate(self, inputs):
         # public method calculate
