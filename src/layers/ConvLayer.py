@@ -28,7 +28,8 @@ class ConvLayer:
             numpy array of shape (H', W', C).
         """
         # Padding
-        image = np.pad(image, ((self.padding, self.padding), (self.padding, self.padding), (0, 0)), 'constant')
+        # image = np.pad(image, ((self.padding, self.padding), (self.padding, self.padding), (0, 0)), 'constant')
+        
         # Get shapes
         H, W, C = self.input_shape
         # Get image shape
@@ -58,6 +59,7 @@ class ConvLayer:
     def calculate(self,input):
         self.input = input
         for a in range(len(self.input)):
+            self.input[a] = np.pad(self.input[a], ((self.padding, self.padding), (self.padding, self.padding), (0, 0)), 'constant')
             result = self.convolution(self.input[a])
             self.output.append(result)
         self.output = self._run_activation_function(self.output)
@@ -65,3 +67,111 @@ class ConvLayer:
     
     def _run_activation_function(self, image):
         return np.vectorize(self.activation)(image)
+
+    # MILESTONE B
+    def update_weights(self, lr, preceding_error_term, preceding_weights, preceding_biases, preceding_layer_type):
+        # assume convolutional layer is never output layer
+
+        # dE/dw = dE/dX_i+1 * dX_i+1/dX_Pool *     dX_Pool/dRelu   * dRelu/dX_i * dX_i/dw
+        # dE/dw = dE/dX_i+1 *      w_i+1     *  klo max -> neuron  * dRelu/dX_i *  X_i-1
+        #                                       max = 1, else 0 | 
+        #                                       klo avg -> 1/(n*n)
+
+        if(self.outputs.any() == None):
+            raise ValueError('layer has no output, run forward propagation first')
+        
+        if(preceding_error_term is None or preceding_weights is None):
+            raise ValueError('hidden layer weight update requires preceding error terms and preceding weights')
+        error_term = self._calculate_error_term_conv(preceding_error_term, preceding_weights, preceding_layer_type)
+
+        for idx, inp in enumerate(self.inputs):
+            err_term_on_that_input = error_term[idx]
+            weight_updates = lr*self._convolution_derivative(inp)*err_term_on_that_input
+
+            self.weights += np.transpose(weight_updates)
+
+            self.biases += err_term_on_that_input*1
+
+    # CONVOLUTION LAYER ERROR TERM
+
+    def _calculate_error_term_conv(self, preceding_error_term, preceding_weights, preceding_layer_type):
+        output_function_derivative = self._relu_output_function_derivative()
+
+        if (preceding_layer_type == "Flatten"):
+            sum_expression = self._calculate_sum_expression(preceding_error_term, preceding_weights)
+            intermediate_term = preceding_error_term*sum_expression
+            self.error_term = -1*intermediate_term*output_function_derivative
+        elif (preceding_layer_type == "Pooling"):
+            self.error_term = -1*preceding_error_term*output_function_derivative
+        elif (preceding_layer_type == "Convolution"):
+            intermediate_term = preceding_error_term*self._kernel_derivative(self.output[0])
+            self.error_term = -1*intermediate_term*output_function_derivative
+        return self.error_term
+
+    def _calculate_sum_expression(self, preceding_error_term, preceding_weights):
+        preceding_weights = np.transpose(preceding_weights)
+        sum_expressions = [[np.dot(err, weight) for weight in preceding_weights] for err in preceding_error_term]
+        return -1*np.array(sum_expressions)
+    
+    # ACTIVATION FUNCTION DERIVATIVE
+
+    def _relu_output_function_derivative(self):
+        return np.array([np.vectorize(self._relu_derivative)(outp) for outp in self.outputs])
+    
+    def _relu_derivative(val):
+        return 0 if val < 0 else 1
+
+    # CONVOLUTION LAYER DERIVATIVE
+    def _convolution_derivative(self, image):
+        H, W, C = self.input_shape
+        # Get image shape
+        Hi, Wi, Ci = image.shape
+        if( Hi != H or Wi != W or Ci != C):
+            raise ValueError('dimension mismatch expected of size {}, got {}'.format((H, W, C), (Hi, Wi, Ci)))
+        F = self.n_filters
+        kH, kW = self.kernel_size, self.kernel_size
+        # Compute output shape
+        H_ = int((H - kH) / self.stride + 1)
+        W_ = int((W - kW) / self.stride + 1)
+        # Initialize output
+        output = np.zeros((H_, W_, F))
+        # Convolution
+        for h in range(H_):
+            for w in range(W_):
+                for f in range(F):
+                    for c in range(C):
+                        output[h, w, f] += image[h * self.stride:h * self.stride + kH, w * self.stride:w * self.stride + kW, c]
+
+        return output
+    
+    def _kernel_derivative(self, image):
+        H, W, C = self.input_shape
+        # Get image shape
+        Hi, Wi, Ci = image.shape
+        if( Hi != H or Wi != W or Ci != C):
+            raise ValueError('dimension mismatch expected of size {}, got {}'.format((H, W, C), (Hi, Wi, Ci)))
+        F = self.n_filters
+        kH, kW = self.kernel_size, self.kernel_size
+        # Compute output shape
+        H_ = int((H - kH) / self.stride + 1)
+        W_ = int((W - kW) / self.stride + 1)
+        # Initialize output
+        output = np.zeros((H_, W_, F))
+        # Convolution
+        for h in range(H_):
+            for w in range(W_):
+                for f in range(F):
+                    for c in range(C):
+                        output[h, w, f] = self.kernel
+
+        return output
+
+    # GETTER
+    def get_output(self):
+        return self.outputs
+
+    def get_error_terms(self):
+        return self.error_term
+
+    def get_weights(self):
+        return self.weights
