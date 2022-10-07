@@ -73,6 +73,10 @@ class PoolingLayer:
                                 outputs[cs][i//self.stride][j // self.stride][c] = self.poolingFunction(currMatrix)
 
         return outputs
+    
+    def update_weights(self, _, preceding_error_term, preceding_weights):
+        self.error_term = preceding_error_term
+        self.weights = preceding_weights
 
     @staticmethod
     def maxPool(matrixSlice):
