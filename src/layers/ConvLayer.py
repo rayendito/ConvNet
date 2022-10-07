@@ -70,7 +70,7 @@ class ConvLayer:
         return np.vectorize(self.activation)(image)
 
     # MILESTONE B
-    def update_weights(self, lr, preceding_error_term, preceding_weights, preceding_biases, preceding_layer_type):
+    def update_weights(self, lr, preceding_error_term, preceding_weights, preceding_layer_type):
         # assume convolutional layer is never output layer
 
         # dE/dw = dE/dX_i+1 * dX_i+1/dX_Pool *     dX_Pool/dRelu   * dRelu/dX_i * dX_i/dw
