@@ -60,11 +60,12 @@ class ConvLayer:
     
     def calculate(self,input):
         self.input = input
+        self.output = [[] for _ in self.input]
         for a in range(len(self.input)):
             self.input[a] = np.pad(self.input[a], ((self.padding, self.padding), (self.padding, self.padding), (0, 0)), 'constant')
             result = self.convolution(self.input[a])
-            self.output.append(result)
-        self.output = self._run_activation_function(self.output)
+            self.output[a] = result
+        self.output = np.array(self._run_activation_function(self.output))
 
         return self.output
     
@@ -80,7 +81,7 @@ class ConvLayer:
         #                                       max = 1, else 0 | 
         #                                       klo avg -> 1/(n*n)
 
-        if(self.output.any() == None):
+        if(len(self.output) == 0):
             raise ValueError('layer has no output, run forward propagation first')
         
         if(preceding_error_term is None):
@@ -96,7 +97,7 @@ class ConvLayer:
             for i, nest_1 in enumerate(conv_derivative):
                 for j, nest_2 in enumerate(nest_1):
                     for k, nest_3 in enumerate(nest_2):
-                        np.add(weight_updates[k], lr*nest_3*err_term_on_that_input[i][j][k], out=weight_updates[k], casting="unsafe")
+                        np.add(weight_updates[k], -1*lr*nest_3*err_term_on_that_input[i][j][k], out=weight_updates[k], casting="unsafe")
 
             self.kernel += np.array(weight_updates, dtype=float)
 
@@ -109,13 +110,13 @@ class ConvLayer:
 
         if (preceding_layer_type == "Flatten"):
             intermediate_term = preceding_error_term*(preceding_error_term*preceding_weights)
-            self.error_term = -1*intermediate_term*output_function_derivative
+            self.error_term = intermediate_term*output_function_derivative
         elif (preceding_layer_type == "Pooling"):
-            self.error_term = -1*preceding_error_term*output_function_derivative
+            self.error_term = preceding_error_term*output_function_derivative
         elif (preceding_layer_type == "Convolution"):
             # intermediate_term = preceding_error_term*np.array([self._kernel_derivative(self.output[0]) for _ in self.output], dtype=object)
             # self.error_term = -1*intermediate_term*output_function_derivative
-            self.error_term = -1*preceding_error_term*output_function_derivative
+            self.error_term = preceding_error_term*output_function_derivative
         return self.error_term
     
     # ACTIVATION FUNCTION DERIVATIVE

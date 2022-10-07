@@ -103,7 +103,7 @@ class PoolingLayer:
         elif (self.mode == PoolingLayer.AVG):
             self.derivatives = np.array([[[[1/(self.size*self.size) for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs])
         
-        self.error_term = np.array([[[nest_3*np.sum((preceding_weights*preceding_error_term).T, axis=0) for nest_3 in nest_2] for nest_2 in nest_1] for nest_1 in self.derivatives])
+        self.error_term = np.array([[[nest_3*np.sum((preceding_weights*preceding_error_term.T).T, axis=0) for nest_3 in nest_2] for nest_2 in nest_1] for nest_1 in self.derivatives])
         self.weights = None
     
     def get_all_weights(self):

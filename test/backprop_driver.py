@@ -24,13 +24,32 @@ b3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 W3 = np.insert(w3, 0, b3, axis=1)
 
+output = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 1]])
+
 # CREATE MODEL
 model = Model()
 model.addLayer(ConvLayer(2, 3, (5, 5, 1), stride=1, padding=0))
 model.addLayer(PoolingLayer(3, "MAX"))
 model.addLayer(FlattenLayer())
-model.addLayer(DenseLayer(2, "relu", batch_size=1, input_size=1))
-model.addLayer(DenseLayer(2, "relu", batch_size=1, input_size=1))
-model.addLayer(DenseLayer(10, "sigmoid", batch_size=1, input_size=1))
+model.addLayer(DenseLayer(2, "sigmoid", batch_size=1, input_size=1))
+model.addLayer(DenseLayer(10, "sigmoid", batch_size=1, input_size=1, is_output_layer=True))
 
-model.compile_model(10e-4, 0)
+model.layers[0].kernel = np.array(w1, dtype=float)
+model.layers[0].bias = np.array(b1, dtype=float)
+model.layers[3].weights = np.array(w2, dtype=float)
+model.layers[3].bias = np.array(b2, dtype=float)
+model.layers[4].weights = np.array(w3, dtype=float)
+model.layers[4].bias = np.array(b3, dtype=float)
+
+
+model.compile_model(10e-1, 0)
+print(model.layers[0].kernel)
+
+model.fit(x_train, output, 1, 1)
+
+a = model.predict(x_train)
+
+# model.fit(x_train, output, 1, 100)
+
+# a = model.predict(x_train)
+# print(model.layers[0].kernel)

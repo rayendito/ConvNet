@@ -14,8 +14,8 @@ class Model:
         x = np.array(self.inputs)
 
         for layer in self.layers:
-            if Model.checkShape(x, layer):
-                x = layer.calculate(x)
+            # if Model.checkShape(x, layer):
+            x = layer.calculate(x)
 
         return x
 
@@ -43,7 +43,7 @@ class Model:
 
     def fit(self, inputs, labels, batch_size=4, epoch=5):
         for i in range(epoch):
-            for j in range(0,len(inputs), batch_size):
+            for j in range(0, len(inputs), batch_size):
                 begin = j
                 end = max(j+batch_size, len(inputs))
                 self.forwardProp(inputs[begin:end])
@@ -61,5 +61,7 @@ class Model:
                                                 momentum = self.momentum,
                                                 actual=labels[begin:end],
                                                 preceding_error_term=preced_err_term,
-                                                preceding_weights=preced_weights
+                                                preceding_weights=preced_weights,
+                                                preceding_layer_type=self.layers[min(i+1, len(self.layers)-1)].layer_type
                                                 )
+                    print(self.layers[i].error_term)

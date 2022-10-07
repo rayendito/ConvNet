@@ -5,7 +5,7 @@ from src.utils.utils import sigmoid, ReLU
 class DenseLayer:
     # MILESTONE A
 
-    def __init__(self, output_size, activation, batch_size=10, input_size=10, testing=False, is_output_layer=True):
+    def __init__(self, output_size, activation, batch_size=10, input_size=10, testing=False, is_output_layer=False):
         # type checking
         if (not isinstance(batch_size, int)):
             raise TypeError('DenseLayer batch_size must be an integer')
@@ -51,6 +51,7 @@ class DenseLayer:
         inputs_times_weights = self._calc_inputs_v_weights()
         nets = self._add_biases(inputs_times_weights)
         self.outputs = self._run_activation_function(nets)
+
         return self.outputs
 
     def _resize_batch_and_input_size_if_necessary(self, inputs):
@@ -102,7 +103,7 @@ class DenseLayer:
             err_term_on_that_input = error_term[idx]
             weight_updates = []
             for element in inp:
-                weight_update = lr*element*err_term_on_that_input
+                weight_update = -1*lr*element*err_term_on_that_input
                 weight_updates.append(weight_update)
 
             w_update = np.transpose(weight_updates) + momentum*self.last_update_weights
@@ -122,19 +123,19 @@ class DenseLayer:
     def _calculate_error_term_output(self, actual):
         output_function_derivative = self._sigmoid_output_function_derivative() if self.activation_name == 'sigmoid' else self._relu_output_function_derivative()
         error_function_derivative = self._error_function_derivative(actual)
-        self.error_term = -1*output_function_derivative*error_function_derivative
+        self.error_term = output_function_derivative*error_function_derivative
         return self.error_term
 
     def _error_function_derivative(self, actual):
         error_mean = np.array(np.array(actual)-self.outputs).mean(0)
-        return -1 * error_mean
+        return error_mean
 
     # HIDDEN LAYER ERROR TERM
 
     def _calculate_error_term_hidden(self, preceding_error_term, preceding_weights):
         output_function_derivative = self._sigmoid_output_function_derivative() if self.activation_name == 'sigmoid' else self._relu_output_function_derivative()
         sum_expression = self._calculate_sum_expression(preceding_error_term, preceding_weights)
-        self.error_term = -1*output_function_derivative*sum_expression
+        self.error_term = output_function_derivative*sum_expression
         return self.error_term
 
     def _calculate_sum_expression(self, preceding_error_term, preceding_weights):
@@ -142,7 +143,7 @@ class DenseLayer:
         preceding_weights = np.transpose(preceding_weights)
         for err in preceding_error_term:
             sum_expressions.append([np.dot(err, weight) for weight in preceding_weights])
-        return -1*np.array(sum_expressions)
+        return np.array(sum_expressions)
     
     # ACTIVATION FUNCTION DERIVATIVE
 
@@ -166,7 +167,8 @@ class DenseLayer:
         return self.weights
 
     def get_all_weights(self):
-        return np.array([np.concatenate((self.weights[i],[self.biases[i]]),axis=0) for i in range(len(self.biases))])
+        return np.insert(self.weights, 0, self.biases, axis=1)
+        # return np.array([np.concatenate((self.weights[i],[self.biases[i]]),axis=0) for i in range(len(self.biases))])
     
 
 # my star, my perfect silence
