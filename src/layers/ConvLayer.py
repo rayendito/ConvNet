@@ -93,7 +93,7 @@ class ConvLayer:
     # OUTPUT LAYER ERROR TERM
 
     def _calculate_error_term_output(self, actual):
-        output_function_derivative = self._sigmoid_output_function_derivative() if self.activation == 'sigmoid' else self._relu_output_function_derivative()
+        output_function_derivative = self._relu_output_function_derivative()
         error_function_derivative = self._error_function_derivative(actual)
         self.error_term = -1*output_function_derivative*error_function_derivative
         return self.error_term
@@ -105,7 +105,7 @@ class ConvLayer:
     # HIDDEN LAYER ERROR TERM
 
     def _calculate_error_term_conv(self, preceding_error_term, preceding_weights):
-        output_function_derivative = self._sigmoid_output_function_derivative() if self.activation == 'sigmoid' else self._relu_output_function_derivative()
+        output_function_derivative = self._relu_output_function_derivative()
         sum_expression = self._calculate_sum_expression(preceding_error_term, preceding_weights)
         self.error_term = -1*output_function_derivative*sum_expression
         return self.error_term
@@ -116,9 +116,6 @@ class ConvLayer:
         return -1*np.array(sum_expressions)
     
     # ACTIVATION FUNCTION DERIVATIVE
-
-    def _sigmoid_output_function_derivative(self):
-        return self.outputs*(1-self.outputs)
 
     def _relu_output_function_derivative(self):
         return np.array([np.vectorize(self._relu_derivative)(outp) for outp in self.outputs])
