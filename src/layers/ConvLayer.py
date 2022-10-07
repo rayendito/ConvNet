@@ -28,7 +28,8 @@ class ConvLayer:
             numpy array of shape (H', W', C).
         """
         # Padding
-        image = np.pad(image, ((self.padding, self.padding), (self.padding, self.padding), (0, 0)), 'constant')
+        # image = np.pad(image, ((self.padding, self.padding), (self.padding, self.padding), (0, 0)), 'constant')
+        
         # Get shapes
         H, W, C = self.input_shape
         # Get image shape
@@ -58,6 +59,7 @@ class ConvLayer:
     def calculate(self,input):
         self.input = input
         for a in range(len(self.input)):
+            self.input[a] = np.pad(self.input[a], ((self.padding, self.padding), (self.padding, self.padding), (0, 0)), 'constant')
             result = self.convolution(self.input[a])
             self.output.append(result)
         self.output = self._run_activation_function(self.output)
@@ -122,6 +124,29 @@ class ConvLayer:
     
     def _relu_derivative(val):
         return 0 if val < 0 else 1
+
+    # CONVOLUTION LAYER DERIVATIVE
+    def _convolution_derivative(self, image):
+        H, W, C = self.input_shape
+        # Get image shape
+        Hi, Wi, Ci = image.shape
+        if( Hi != H or Wi != W or Ci != C):
+            raise ValueError('dimension mismatch expected of size {}, got {}'.format((H, W, C), (Hi, Wi, Ci)))
+        F = self.n_filters
+        kH, kW = self.kernel_size, self.kernel_size
+        # Compute output shape
+        H_ = int((H - kH) / self.stride + 1)
+        W_ = int((W - kW) / self.stride + 1)
+        # Initialize output
+        output = np.zeros((H_, W_, F))
+        # Convolution
+        for h in range(H_):
+            for w in range(W_):
+                for f in range(F):
+                    for c in range(C):
+                        output[h, w, f] += image[h * self.stride:h * self.stride + kH, w * self.stride:w * self.stride + kW, c]
+
+        return output
 
     # GETTER
     def get_output(self):
