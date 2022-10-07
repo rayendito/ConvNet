@@ -47,12 +47,22 @@ class Model:
                 begin = j
                 end = max(j+batch_size, len(inputs))
                 self.forwardProp(inputs[begin:end])
-                for idx, layer in enumerate(reversed(self.layers)):
-                    layer.update_weights(lr=self.lr,
-                                            momentum = self.momentum,
-                                            actual=labels[begin:end],
-                                            preceding_error_term=self.layers[idx-1].error_term if idx > 0 else None,
-                                            preceding_weights=self.layers[idx-1].weights if idx > 0 else None)
+
+                for i in range(len(self.layers)-1, -1, -1):
+                    preced_err_term = None
+                    preced_weights = None
+                    if(i < len(self.layers)-1):
+                        preced_err_term = self.layers[i+1].error_term
+                        if(self.layers[i+1].layer_type == 'dense'):
+                            preced_weights = self.layers[i+1].get_weights()
+                        else:
+                            preced_weights = self.layers[i+1].get_all_weights()
+                    self.layers[i].update_weights(lr=self.lr,
+                                                momentum = self.momentum,
+                                                actual=labels[begin:end],
+                                                preceding_error_term=preced_err_term,
+                                                preceding_weights=preced_weights
+                                                )
 
 
     def backProp(self, inputs):

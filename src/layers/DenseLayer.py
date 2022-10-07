@@ -23,6 +23,7 @@ class DenseLayer:
         self.testing = testing
         self.is_output_layer = is_output_layer
         
+        self.activation_name = activation
         if(activation == 'sigmoid'):
             self.activation = sigmoid
         elif(activation == 'relu'):
@@ -82,7 +83,7 @@ class DenseLayer:
         return np.vectorize(self.activation)(nets)
 
     # MILESTONE B
-    def update_weights(self, lr=10e-4, momentum = 0, actual=None, preceding_error_term=None, preceding_weights=None):
+    def update_weights(self, lr=10e-4, momentum = 0, actual=None, preceding_error_term=None, preceding_weights=None, _preceding_layer_type=None):
         if(self.outputs.any() == None):
             raise ValueError('layer has no output, run forward propagation first')
 
@@ -119,7 +120,7 @@ class DenseLayer:
     # OUTPUT LAYER ERROR TERM
 
     def _calculate_error_term_output(self, actual):
-        output_function_derivative = self._sigmoid_output_function_derivative() if self.activation == 'sigmoid' else self._relu_output_function_derivative()
+        output_function_derivative = self._sigmoid_output_function_derivative() if self.activation_name == 'sigmoid' else self._relu_output_function_derivative()
         error_function_derivative = self._error_function_derivative(actual)
         self.error_term = -1*output_function_derivative*error_function_derivative
         return self.error_term
@@ -131,7 +132,7 @@ class DenseLayer:
     # HIDDEN LAYER ERROR TERM
 
     def _calculate_error_term_hidden(self, preceding_error_term, preceding_weights):
-        output_function_derivative = self._sigmoid_output_function_derivative() if self.activation == 'sigmoid' else self._relu_output_function_derivative()
+        output_function_derivative = self._sigmoid_output_function_derivative() if self.activation_name == 'sigmoid' else self._relu_output_function_derivative()
         sum_expression = self._calculate_sum_expression(preceding_error_term, preceding_weights)
         self.error_term = -1*output_function_derivative*sum_expression
         return self.error_term
