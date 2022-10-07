@@ -53,7 +53,7 @@ class Model:
                     preced_weights = None
                     if(i < len(self.layers)-1):
                         preced_err_term = self.layers[i+1].error_term
-                        if(self.layers[i+1].layer_type == 'dense'):
+                        if(self.layers[i].layer_type == 'Dense'):
                             preced_weights = self.layers[i+1].get_weights()
                         else:
                             preced_weights = self.layers[i+1].get_all_weights()
@@ -63,8 +63,3 @@ class Model:
                                                 preceding_error_term=preced_err_term,
                                                 preceding_weights=preced_weights
                                                 )
-
-
-    def backProp(self, inputs):
-        # TODO: Implement mini batch stochastic gradient descent backpropagation
-        pass
