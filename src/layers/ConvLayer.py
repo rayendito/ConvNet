@@ -90,7 +90,7 @@ class ConvLayer:
 
             self.weights += np.transpose(weight_updates)
 
-            self.biases += err_term_on_that_input*1
+            self.biases += np.array([np.sum(err_term_on_that_input[i]) for i in range(self.n_filters)])
 
     # CONVOLUTION LAYER ERROR TERM
 
@@ -98,20 +98,14 @@ class ConvLayer:
         output_function_derivative = self._relu_output_function_derivative()
 
         if (preceding_layer_type == "Flatten"):
-            sum_expression = self._calculate_sum_expression(preceding_error_term, preceding_weights)
-            intermediate_term = preceding_error_term*sum_expression
+            intermediate_term = preceding_error_term*(preceding_error_term*preceding_weights)
             self.error_term = -1*intermediate_term*output_function_derivative
         elif (preceding_layer_type == "Pooling"):
             self.error_term = -1*preceding_error_term*output_function_derivative
         elif (preceding_layer_type == "Convolution"):
-            intermediate_term = preceding_error_term*self._kernel_derivative(self.output[0])
+            intermediate_term = preceding_error_term*np.array([self._kernel_derivative(self.output[0]) for _ in self.output], dtype=object)
             self.error_term = -1*intermediate_term*output_function_derivative
         return self.error_term
-
-    def _calculate_sum_expression(self, preceding_error_term, preceding_weights):
-        preceding_weights = np.transpose(preceding_weights)
-        sum_expressions = [[np.dot(err, weight) for weight in preceding_weights] for err in preceding_error_term]
-        return -1*np.array(sum_expressions)
     
     # ACTIVATION FUNCTION DERIVATIVE
 
