@@ -81,7 +81,7 @@ class DenseLayer:
         return np.vectorize(self.activation)(nets)
 
     # MILESTONE B
-    def update_weights(self, lr, momentum = 0, actual=None, preceding_error_term=None, preceding_weights=None):
+    def update_weights(self, lr=10e-4, momentum = 0, actual=None, preceding_error_term=None, preceding_weights=None):
         if(self.outputs.any() == None):
             raise ValueError('layer has no output, run forward propagation first')
 
@@ -162,6 +162,8 @@ class DenseLayer:
 
     def get_weights(self):
         return self.weights
+
+    
 
 # my star, my perfect silence
 # ===================
