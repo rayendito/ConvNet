@@ -76,7 +76,7 @@ class PoolingLayer:
 
         return outputs
     
-    def update_weights(self, lr=10e-4, momentum = 0, actual=None, preceding_error_term=None, preceding_weights=None, _preceding_layer_type=None):
+    def update_weights(self, lr=10e-4, momentum = 0, actual=None, preceding_error_term=None, preceding_weights=None, preceding_layer_type=None):
         if (self.mode == PoolingLayer.MAX):
             self.derivatives = [[[[0 for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs]
             
