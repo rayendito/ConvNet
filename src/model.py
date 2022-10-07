@@ -3,6 +3,8 @@ import numpy as np
 class Model:
     def __init__(self):
         self.layers = []
+        self.lr = None
+        self.momentum = None
 
     def addLayer(self, layer):
         self.layers.append(layer)
@@ -35,8 +37,24 @@ class Model:
         else:
             return True
 
+    def compile_model(self, lr, momentum):
+        self.lr = lr
+        self.momentum = momentum
+
+    def fit(self, inputs, labels, batch_size=4, epoch=5):
+        for i in range(epoch):
+            for j in range(0,len(inputs), batch_size):
+                begin = j
+                end = max(j+batch_size, len(inputs))
+                self.forwardProp(inputs[begin:end])
+                for idx, layer in enumerate(reversed(self.layers)):
+                    layer.update_weights(lr=self.lr,
+                                            momentum = self.momentum,
+                                            actual=labels[begin:end],
+                                            preceding_error_term=self.layers[idx-1].error_term if idx > 0 else None,
+                                            preceding_weights=self.layers[idx-1].weights if idx > 0 else None)
+
 
     def backProp(self, inputs):
         # TODO: Implement mini batch stochastic gradient descent backpropagation
-
         pass
