@@ -90,7 +90,7 @@ class ConvLayer:
 
             self.weights += np.transpose(weight_updates)
 
-            self.biases += err_term_on_that_input*1
+            self.biases += [np.sum(err_term_on_that_input[i]) for i in range(self.n_filters)]
 
     # CONVOLUTION LAYER ERROR TERM
 
