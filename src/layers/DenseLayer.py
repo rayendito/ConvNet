@@ -35,6 +35,8 @@ class DenseLayer:
         self.net = None
         self.outputs = None
         self.error_term = None
+        self.last_update_weights = np.array([[0.0]*input_size]*output_size)
+        self.last_update_biases = np.array([0.0]*output_size)
     
     def calculate(self, inputs):
         self._resize_batch_and_input_size_if_necessary(inputs)
@@ -79,7 +81,7 @@ class DenseLayer:
         return np.vectorize(self.activation)(nets)
 
     # MILESTONE B
-    def update_weights(self, lr, actual=None, preceding_error_term=None, preceding_weights=None):
+    def update_weights(self, lr, momentum = 0, actual=None, preceding_error_term=None, preceding_weights=None):
         if(self.outputs.any() == None):
             raise ValueError('layer has no output, run forward propagation first')
 
@@ -92,14 +94,26 @@ class DenseLayer:
                 raise ValueError('hidden layer weight update requires preceding error terms and preceding weights')
             error_term = self._calculate_error_term_hidden(preceding_error_term, preceding_weights)
 
+        sum_update_weight = np.array([[0.0]*self.input_size]*self.output_size)
+        sum_update_bias = np.array([0.0]*self.output_size)
         for idx, inp in enumerate(self.inputs):
             err_term_on_that_input = error_term[idx]
             weight_updates = []
             for element in inp:
                 weight_update = lr*element*err_term_on_that_input
                 weight_updates.append(weight_update)
-            self.weights += np.transpose(weight_updates)
-            self.biases += lr*err_term_on_that_input
+
+            w_update = np.transpose(weight_updates) + momentum*self.last_update_weights
+            self.weights += w_update
+            sum_update_weight += w_update
+
+            b_update = lr*err_term_on_that_input + momentum*self.last_update_biases
+            self.biases += b_update
+            sum_update_bias += b_update
+        
+        self.last_update_weights = sum_update_weight
+        self.last_update_biases = sum_update_bias
+
 
     # OUTPUT LAYER ERROR TERM
 

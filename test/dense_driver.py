@@ -43,10 +43,14 @@ print(hidden_layer.weights)
 print('HIDDEN BIASES BEFORE')
 print(hidden_layer.biases)
 
-hidden_layer.update_weights(lr, preceding_error_term=preced_err_terms, preceding_weights=preced_weights)
+hidden_layer.update_weights(lr, momentum=0.2, preceding_error_term=preced_err_terms, preceding_weights=preced_weights)
 
 print('HIDDEN WEIGHTS AFTER')
 print(hidden_layer.weights)
 
 print('HIDDEN BIASES AFTER')
 print(hidden_layer.biases)
+
+hidden_layer.update_weights(lr, momentum=0.2, preceding_error_term=preced_err_terms, preceding_weights=preced_weights)
+
+hidden_layer.update_weights(lr, momentum=0.2, preceding_error_term=preced_err_terms, preceding_weights=preced_weights)
