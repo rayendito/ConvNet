@@ -99,9 +99,7 @@ class DenseLayer:
                 weight_update = lr*element*err_term_on_that_input
                 weight_updates.append(weight_update)
             self.weights += np.transpose(weight_updates)
-
-        #TODO: delete wleowleowleo
-        print(self.weights)
+            self.biases += lr*err_term_on_that_input
 
     # OUTPUT LAYER ERROR TERM
 
@@ -138,7 +136,7 @@ class DenseLayer:
     def _relu_output_function_derivative(self):
         return np.array([np.vectorize(self._relu_derivative)(outp) for outp in self.outputs])
     
-    def _relu_derivative(val):
+    def _relu_derivative(self, val):
         return 0 if val < 0 else 1
 
     # GETTER
