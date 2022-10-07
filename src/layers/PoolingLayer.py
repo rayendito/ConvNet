@@ -75,8 +75,33 @@ class PoolingLayer:
         return outputs
     
     def update_weights(self, _, preceding_error_term, preceding_weights):
-        self.error_term = preceding_error_term
-        self.weights = preceding_weights
+        if (self.mode == PoolingLayer.MAX):
+            self.derivatives = [[[[0 for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs]
+            
+            for cs, channels in enumerate(self.inputs):
+                for c in range(len(channels[0][0])):
+                    for i in range(0, len(channels), self.stride):
+                        # iterate through columns with stride
+                        if (i + self.size <= len(channels)):
+                            for j in range(0, len(channels[i]), self.stride):
+                                # iterate through rows with stride
+                                if (j + self.size <= len(channels[i])):
+                                    
+                                    # prepare matrix of current receptive field
+                                    currMatrix = [
+                                        [0 for _ in range(self.size)] for _ in range(self.size)]
+
+                                    # copy current receptive field
+                                    for a in range(self.size):
+                                        for b in range(self.size):
+                                            currMatrix[a][b] = channels[i+a][j+b][c]
+
+                                    # calculate pooling result
+                                    max_i, max_j = np.unravel_index(currMatrix.argmax(), currMatrix.shape)
+                                    self.derivatives[max_i, max_j] = 1
+
+        self.error_term = (preceding_weights*preceding_error_term)*self.derivatives
+        self.weights = None
 
     @staticmethod
     def maxPool(matrixSlice):
