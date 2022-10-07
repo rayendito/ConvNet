@@ -34,9 +34,6 @@ print(output_layer.get_error_terms())
 preced_weights = output_layer.get_weights()
 preced_err_terms = output_layer.get_error_terms()
 
-print(preced_weights.shape)
-print(preced_err_terms.shape)
-
 print('HIDDEN WEIGHTS BEFORE')
 print(hidden_layer.weights)
 

@@ -163,6 +163,8 @@ class DenseLayer:
     def get_weights(self):
         return self.weights
 
+    def get_all_weights(self):
+        return np.array([np.concatenate((self.weights[i],[self.biases[i]]),axis=0) for i in range(len(self.biases))])
     
 
 # my star, my perfect silence
