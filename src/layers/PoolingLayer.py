@@ -78,7 +78,7 @@ class PoolingLayer:
     
     def update_weights(self, lr=10e-4, momentum = 0, actual=None, preceding_error_term=None, preceding_weights=None, preceding_layer_type=None):
         if (self.mode == PoolingLayer.MAX):
-            self.derivatives = [[[[0 for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs]
+            self.derivatives = np.array([[[[0 for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs])
             
             for cs, channels in enumerate(self.inputs):
                 for c in range(len(channels[0][0])):
@@ -90,8 +90,7 @@ class PoolingLayer:
                                 if (j + self.size <= len(channels[i])):
                                     
                                     # prepare matrix of current receptive field
-                                    currMatrix = [
-                                        [0 for _ in range(self.size)] for _ in range(self.size)]
+                                    currMatrix = np.array([[0 for _ in range(self.size)] for _ in range(self.size)])
 
                                     # copy current receptive field
                                     for a in range(self.size):
@@ -100,11 +99,11 @@ class PoolingLayer:
 
                                     # calculate pooling result
                                     max_i, max_j = np.unravel_index(currMatrix.argmax(), currMatrix.shape)
-                                    self.derivatives[max_i, max_j] = 1
+                                    self.derivatives[cs][max_i][max_j][c] = 1
         elif (self.mode == PoolingLayer.AVG):
-            self.derivatives = [[[[1/(self.size*self.size) for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs]
+            self.derivatives = np.array([[[[1/(self.size*self.size) for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs])
         
-        self.error_term = (preceding_weights*preceding_error_term)*self.derivatives
+        self.error_term = np.array([[[nest_3*np.sum((preceding_weights*preceding_error_term).T, axis=0) for nest_3 in nest_2] for nest_2 in nest_1] for nest_1 in self.derivatives])
         self.weights = None
     
     def get_all_weights(self):
