@@ -69,7 +69,7 @@ class ConvLayer:
         return np.vectorize(self.activation)(image)
 
     # MILESTONE B
-    def update_weights(self, lr, preceding_error_term, preceding_weights):
+    def update_weights(self, lr, preceding_error_term, preceding_weights, preceding_biases, preceding_layer_type):
         # assume convolutional layer is never output layer
 
         # dE/dw = dE/dX_i+1 * dX_i+1/dX_Pool *     dX_Pool/dRelu   * dRelu/dX_i * dX_i/dw
@@ -82,34 +82,30 @@ class ConvLayer:
         
         if(preceding_error_term is None or preceding_weights is None):
             raise ValueError('hidden layer weight update requires preceding error terms and preceding weights')
-        error_term = self._calculate_error_term_conv(preceding_error_term, preceding_weights)
+        error_term = self._calculate_error_term_conv(preceding_error_term, preceding_weights, preceding_layer_type)
 
         for idx, inp in enumerate(self.inputs):
             err_term_on_that_input = error_term[idx]
-            weight_updates = []
-            for element in inp:
-                weight_update = lr*element*err_term_on_that_input
-                weight_updates.append(weight_update)
+            weight_updates = lr*self._convolution_derivative(inp)*err_term_on_that_input
+
             self.weights += np.transpose(weight_updates)
 
-    # OUTPUT LAYER ERROR TERM
+            self.biases += err_term_on_that_input*1
 
-    def _calculate_error_term_output(self, actual):
+    # CONVOLUTION LAYER ERROR TERM
+
+    def _calculate_error_term_conv(self, preceding_error_term, preceding_weights, preceding_layer_type):
         output_function_derivative = self._relu_output_function_derivative()
-        error_function_derivative = self._error_function_derivative(actual)
-        self.error_term = -1*output_function_derivative*error_function_derivative
-        return self.error_term
 
-    def _error_function_derivative(self, actual):
-        error_mean = np.array(np.array(actual)-self.outputs).mean(0)
-        return -1 * error_mean
-
-    # HIDDEN LAYER ERROR TERM
-
-    def _calculate_error_term_conv(self, preceding_error_term, preceding_weights):
-        output_function_derivative = self._relu_output_function_derivative()
-        sum_expression = self._calculate_sum_expression(preceding_error_term, preceding_weights)
-        self.error_term = -1*output_function_derivative*sum_expression
+        if (preceding_layer_type == "Flatten"):
+            sum_expression = self._calculate_sum_expression(preceding_error_term, preceding_weights)
+            intermediate_term = preceding_error_term*sum_expression
+            self.error_term = -1*intermediate_term*output_function_derivative
+        elif (preceding_layer_type == "Pooling"):
+            self.error_term = -1*preceding_error_term*output_function_derivative
+        elif (preceding_layer_type == "Convolution"):
+            intermediate_term = preceding_error_term*self._kernel_derivative(self.output[0])
+            self.error_term = -1*intermediate_term*output_function_derivative
         return self.error_term
 
     def _calculate_sum_expression(self, preceding_error_term, preceding_weights):
@@ -145,6 +141,28 @@ class ConvLayer:
                 for f in range(F):
                     for c in range(C):
                         output[h, w, f] += image[h * self.stride:h * self.stride + kH, w * self.stride:w * self.stride + kW, c]
+
+        return output
+    
+    def _kernel_derivative(self, image):
+        H, W, C = self.input_shape
+        # Get image shape
+        Hi, Wi, Ci = image.shape
+        if( Hi != H or Wi != W or Ci != C):
+            raise ValueError('dimension mismatch expected of size {}, got {}'.format((H, W, C), (Hi, Wi, Ci)))
+        F = self.n_filters
+        kH, kW = self.kernel_size, self.kernel_size
+        # Compute output shape
+        H_ = int((H - kH) / self.stride + 1)
+        W_ = int((W - kW) / self.stride + 1)
+        # Initialize output
+        output = np.zeros((H_, W_, F))
+        # Convolution
+        for h in range(H_):
+            for w in range(W_):
+                for f in range(F):
+                    for c in range(C):
+                        output[h, w, f] = self.kernel
 
         return output
 
