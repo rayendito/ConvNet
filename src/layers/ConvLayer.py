@@ -82,7 +82,7 @@ class ConvLayer:
         
         if(preceding_error_term is None or preceding_weights is None):
             raise ValueError('hidden layer weight update requires preceding error terms and preceding weights')
-        error_term = self._calculate_error_term_conv(preceding_error_term, preceding_weights)
+        error_term = self._calculate_error_term_conv(preceding_error_term)
 
         for idx, inp in enumerate(self.inputs):
             err_term_on_that_input = error_term[idx]
@@ -92,23 +92,11 @@ class ConvLayer:
                 weight_updates.append(weight_update)
             self.weights += np.transpose(weight_updates)
 
-    # OUTPUT LAYER ERROR TERM
+    # CONVOLUTION LAYER ERROR TERM
 
-    def _calculate_error_term_output(self, actual):
+    def _calculate_error_term_conv(self, preceding_error_term):
         output_function_derivative = self._relu_output_function_derivative()
-        error_function_derivative = self._error_function_derivative(actual)
-        self.error_term = -1*output_function_derivative*error_function_derivative
-        return self.error_term
-
-    def _error_function_derivative(self, actual):
-        error_mean = np.array(np.array(actual)-self.outputs).mean(0)
-        return -1 * error_mean
-
-    # HIDDEN LAYER ERROR TERM
-
-    def _calculate_error_term_conv(self, preceding_error_term, preceding_weights):
-        output_function_derivative = self._relu_output_function_derivative()
-        sum_expression = self._calculate_sum_expression(preceding_error_term, preceding_weights)
+        sum_expression = self._calculate_sum_expression(preceding_error_term, self._convolution_derivative())
         self.error_term = -1*output_function_derivative*sum_expression
         return self.error_term
 
