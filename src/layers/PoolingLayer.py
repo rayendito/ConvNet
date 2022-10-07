@@ -99,7 +99,9 @@ class PoolingLayer:
                                     # calculate pooling result
                                     max_i, max_j = np.unravel_index(currMatrix.argmax(), currMatrix.shape)
                                     self.derivatives[max_i, max_j] = 1
-
+        elif (self.mode == PoolingLayer.AVG):
+            self.derivatives = [[[[1/(self.size*self.size) for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs]
+        
         self.error_term = (preceding_weights*preceding_error_term)*self.derivatives
         self.weights = None
 
