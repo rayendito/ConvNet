@@ -128,7 +128,7 @@ class ConvLayer:
         H_ = int((H - kH) / self.stride + 1)
         W_ = int((W - kW) / self.stride + 1)
         # Initialize output
-        output = np.zeros((H_, W_, F))
+        output = [[[[] for _ in F] for _ in W_] for _ in H_]
         # Convolution
         for h in range(H_):
             for w in range(W_):
@@ -136,7 +136,7 @@ class ConvLayer:
                     for c in range(C):
                         output[h, w, f] += image[h * self.stride:h * self.stride + kH, w * self.stride:w * self.stride + kW, c]
 
-        return output
+        return np.array(output, dtype=object)
     
     def _kernel_derivative(self, image):
         H, W, C = self.input_shape
@@ -150,7 +150,7 @@ class ConvLayer:
         H_ = int((H - kH) / self.stride + 1)
         W_ = int((W - kW) / self.stride + 1)
         # Initialize output
-        output = np.zeros((H_, W_, F))
+        output = [[[[] for _ in F] for _ in W_] for _ in H_]
         # Convolution
         for h in range(H_):
             for w in range(W_):
@@ -158,7 +158,7 @@ class ConvLayer:
                     for c in range(C):
                         output[h, w, f] = self.kernel
 
-        return output
+        return np.array(output)
 
     # GETTER
     def get_output(self):
