@@ -16,6 +16,7 @@ class DenseLayer:
         elif (not isinstance(activation, str)):
             raise TypeError('DenseLayer activation must be a string')
 
+        self.layer_type = 'dense'
         self.batch_size = batch_size
         self.input_size = input_size
         self.output_size = output_size
