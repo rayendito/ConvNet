@@ -29,6 +29,9 @@ def sigmoid(x):
 def ReLU(x):
     return np.maximum(0, x)
 
+def tanh(x):
+    return (np.e**(x)-np.e**(-x))/(np.e**(x)+np.e**(-x))
+
 def save(model, filepath="./bin/model.pkl"):
     with open(filepath, "wb") as f:
         pickle.dump(model, f)
