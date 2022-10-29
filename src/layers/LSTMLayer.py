@@ -27,9 +27,12 @@ class LSTMLayer:
         self.C_before = self._initialize_array_zeros(num_cells)
     
         self.Ft = self._initialize_array_zeros(num_cells)
-        self.it = self._initialize_array_zeros(num_cells)
+        self.It = self._initialize_array_zeros(num_cells)
         self.Cddt = self._initialize_array_zeros(num_cells)
         self.Ot = self._initialize_array_zeros(num_cells)
+
+        self.h_now = self._initialize_array_zeros(num_cells)
+        self.C_now = self._initialize_array_zeros(num_cells)
 
     def _initialize_matrix_random(self, n_rows, n_columns):
         return np.random.uniform(low=-1, high=1, size=(n_rows, n_columns))
@@ -51,28 +54,36 @@ class LSTMLayer:
         '''
         for timestep in input_sequence:
             self._calculate_Ft(timestep)
-            # self._calculate_it()
-            # self._calculate_Cddt()
-            # self._calculate_Ot()
+            self._calculate_it(timestep)
+            self._calculate_Cddt(timestep)
+            self._calculate_Ot(timestep)
 
-            # self._calculate_CellState()
-            # self._calculate_HiddenState()
-        pass
+            self._calculate_CellState()
+            self._calculate_HiddenState()
+
+            self.C_before = self.C_now
+            self.h_before = self.h_now
+        
+        # return hidden state terakhir
+        return self.h_now
 
     def _calculate_Ft(self, timestep_input):
         netFt = self._calculate_net('forget', timestep_input)
-        print("NETFT YGY")
-        print(netFt)
         self.Ft = np.vectorize(sigmoid)(netFt)
 
-    def _calculate_it(self):
-        pass
+    def _calculate_it(self, timestep_input):
+        netIt = self._calculate_net('input', timestep_input)
+        self.It = np.vectorize(sigmoid)(netIt)
 
-    def _calculate_Cddt(self):
-        pass
+    def _calculate_Cddt(self, timestep_input):
+        netCddt = self._calculate_net('candidate', timestep_input)
+        print("netCddt yagesya")
+        print(netCddt)
+        self.Cddt = np.vectorize(tanh)(netCddt)
 
-    def _calculate_Ot(self):
-        pass
+    def _calculate_Ot(self, timestep_input):
+        netOt = self._calculate_net('output', timestep_input)
+        self.Ot = np.vectorize(sigmoid)(netOt)
 
     def _calculate_net(self, what_gate, timestep_input):
         if(what_gate == 'forget'):
@@ -95,21 +106,23 @@ class LSTMLayer:
             raise TypeError('Unrecognized LSTM cell type')
 
         Ux = np.array([sum(s) for s in U*timestep_input])
-        print("UX YGY")
-        print(Ux)
+        # print("UX YGY")
+        # print(Ux)
         Wh_before = np.array([sum(s) for s in W*self.h_before])
-        print("WHBEFORE YGY")
-        print(Wh_before)
-        print('B YGY')
-        print(b)
+        # print("WHBEFORE YGY")
+        # print(Wh_before)
+        # print('B YGY')
+        # print(b)
         
         return Ux + Wh_before + b
 
     def _calculate_CellState(self):
-        pass
+        self.C_now = (self.Ft * self.C_before) + (self.It * self.Cddt)
+        print(self.C_now)
 
     def _calculate_HiddenState(self):
-        pass
+        self.h_now = self.Ot * np.vectorize(sigmoid)(self.C_now)
+        print(self.h_now)
 
 # my star, my perfect silence
 # ===================

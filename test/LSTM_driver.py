@@ -8,4 +8,7 @@ test_input = np.array([
 ])
 
 elestiem = LSTMLayer(5, input_size=3)
-elestiem.calculate(test_input)
+
+fin_outp = elestiem.calculate(test_input)
+print("final output")
+print(fin_outp)
