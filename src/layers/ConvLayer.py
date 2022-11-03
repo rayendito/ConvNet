@@ -16,6 +16,8 @@ class ConvLayer:
         self.output = []
         self.layer_type = "Convolution"
         self.last_update_weights = np.zeros((n_filters, kernel_size, kernel_size))
+        self.outputShape = (None, input_shape[0], input_shape[1], n_filters)
+        self.param = self.n_filters * self.kernel_size * self.kernel_size * self.input_shape[0] + self.n_filters
 
     
     def convolution(self, image):

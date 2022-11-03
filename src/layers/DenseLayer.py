@@ -22,6 +22,8 @@ class DenseLayer:
         self.output_size = output_size
         self.testing = testing
         self.is_output_layer = is_output_layer
+        self.outputShape = (None, output_size)
+        self.param = input_size*output_size + output_size
         
         self.activation_name = activation
         if(activation == 'sigmoid'):

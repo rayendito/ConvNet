@@ -34,6 +34,9 @@ class LSTMLayer:
         self.h_now = self._initialize_array_zeros(num_cells)
         self.C_now = self._initialize_array_zeros(num_cells)
 
+        self.outputShape =(None, num_cells)
+        self.param = 4 * num_cells * (input_size + num_cells + 1)
+
     def _initialize_matrix_random(self, n_rows, n_columns):
         return np.random.uniform(low=-1, high=1, size=(n_rows, n_columns))
 

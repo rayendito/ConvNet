@@ -40,6 +40,7 @@ class PoolingLayer:
         # public method calculate
         self.inputs = inputs
         self.outputs = self._pool(self.inputs)
+        self.param = 0
 
         return self.outputs
 
