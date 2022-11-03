@@ -10,6 +10,7 @@ class Model:
         self.layers.append(layer)
 
     def forwardProp(self, inputs):
+        print()
         self.inputs = inputs
         x = np.array(self.inputs)
 
@@ -64,4 +65,4 @@ class Model:
                                                 preceding_weights=preced_weights,
                                                 preceding_layer_type=self.layers[min(i+1, len(self.layers)-1)].layer_type
                                                 )
-                    print(self.layers[i].error_term)
+                    # print(self.layers[i].error_term)

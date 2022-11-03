@@ -40,6 +40,8 @@ class PoolingLayer:
         # public method calculate
         self.inputs = inputs
         self.outputs = self._pool(self.inputs)
+        print("---------")
+        print(self.outputs)
 
         return self.outputs
 
@@ -73,7 +75,7 @@ class PoolingLayer:
 
                                 # calculate pooling result
                                 outputs[cs][i//self.stride][j // self.stride][c] = self.poolingFunction(currMatrix)
-
+        
         return outputs
     
     def update_weights(self, lr=10e-4, momentum = 0, actual=None, preceding_error_term=None, preceding_weights=None, preceding_layer_type=None):
@@ -103,7 +105,22 @@ class PoolingLayer:
         elif (self.mode == PoolingLayer.AVG):
             self.derivatives = np.array([[[[1/(self.size*self.size) for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs])
         
-        self.error_term = np.array([[[nest_3*np.sum((preceding_weights*preceding_error_term.T).T, axis=0) for nest_3 in nest_2] for nest_2 in nest_1] for nest_1 in self.derivatives])
+        self.error_term = [[] for _ in range(len(self.derivatives))]
+
+        for i, nest_1 in enumerate(self.derivatives):
+            temp_1 = [[] for _ in range(len(nest_1))]
+            for j, nest_2 in enumerate(nest_1):
+                temp_2 = [[] for _ in range(len(nest_2))]
+                for k, nest_3 in enumerate(nest_2):
+                    sum_term = (preceding_weights*np.sum(preceding_error_term.T)).T
+                    temp_3 = nest_3*np.sum(sum_term, axis=0)
+                    temp_2[k] = temp_3
+                
+                temp_1[j] = temp_2
+            
+            self.error_term[i] = temp_1
+
+        # self.error_term = np.array([[[nest_3*np.sum((preceding_weights*preceding_error_term.T).T, axis=0) for nest_3 in nest_2] for nest_2 in nest_1] for nest_1 in self.derivatives])
         self.weights = None
     
     def get_all_weights(self):

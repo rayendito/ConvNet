@@ -103,7 +103,7 @@ class DenseLayer:
             err_term_on_that_input = error_term[idx]
             weight_updates = []
             for element in inp:
-                weight_update = -1*lr*element*err_term_on_that_input
+                weight_update = lr*element*err_term_on_that_input
                 weight_updates.append(weight_update)
 
             w_update = np.transpose(weight_updates) + momentum*self.last_update_weights

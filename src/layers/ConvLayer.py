@@ -5,7 +5,7 @@ class ConvLayer:
     def __init__(self,n_filters,kernel_size,input_shape,stride=1,padding=0,):
         self.n_filters = n_filters
         self.kernel_size = kernel_size
-        self.kernel = np.random.rand(n_filters,kernel_size,kernel_size)
+        self.kernel = np.random.rand(n_filters,input_shape[2],kernel_size,kernel_size)
         self.stride = stride
         self.activation = ReLU
         self.padding = padding
@@ -15,7 +15,7 @@ class ConvLayer:
         self.input = []
         self.output = []
         self.layer_type = "Convolution"
-        self.last_update_weights = np.zeros((n_filters, kernel_size, kernel_size))
+        self.last_update_weights = np.zeros((n_filters, input_shape[2], kernel_size, kernel_size))
 
     
     def convolution(self, image):
@@ -50,7 +50,7 @@ class ConvLayer:
             for w in range(W_):
                 for f in range(F):
                     for c in range(C):
-                        output[h, w, f] += np.sum(image[h * self.stride:h * self.stride + kH, w * self.stride:w * self.stride + kW, c] * self.kernel[f])
+                        output[h, w, f] += np.sum(image[h * self.stride:h * self.stride + kH, w * self.stride:w * self.stride + kW, c] * self.kernel[f][c])
                     output[h, w, f] += self.bias[f]
         
         return output
@@ -66,7 +66,6 @@ class ConvLayer:
             result = self.convolution(self.input[a])
             self.output[a] = result
         self.output = np.array(self._run_activation_function(self.output))
-
         return self.output
     
     def _run_activation_function(self, image):
@@ -96,8 +95,11 @@ class ConvLayer:
 
             for i, nest_1 in enumerate(conv_derivative):
                 for j, nest_2 in enumerate(nest_1):
+                    # loop for each channel??
                     for k, nest_3 in enumerate(nest_2):
-                        np.add(weight_updates[k], -1*lr*nest_3*err_term_on_that_input[i][j][k], out=weight_updates[k], casting="unsafe")
+                        for l, nest_4 in enumerate(weight_updates[k]):
+                            # deltas have duplicate error term at channel level
+                            np.add(weight_updates[k][l], lr*nest_3*err_term_on_that_input[i][j][k], out=weight_updates[k], casting="unsafe")
 
             self.kernel += np.array(weight_updates, dtype=float)
 
