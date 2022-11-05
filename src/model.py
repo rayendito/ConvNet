@@ -76,4 +76,25 @@ class Model:
                                                 preceding_weights=preced_weights,
                                                 preceding_layer_type=self.layers[min(i+1, len(self.layers)-1)].layer_type
                                                 )
-                    # print(self.layers[i].error_term)
+
+    def summary(self):
+        print("Model Summary:")
+        n_params = 0
+        currShape = None
+        for i,layer in enumerate(self.layers):
+            print("layer {} : {}".format(i, layer.layer_type))
+            if("outputShape" in dir(layer)):
+                currShape = layer.outputShape
+            else:
+                if(layer.layer_type == 'Flatten'):
+                    currShape = (None, np.prod(currShape[1:]))
+                elif(layer.layer_type == 'Pooling'):
+                    currShape = (None, int(currShape[1]/layer.size), int(currShape[2]/layer.size), currShape[3])
+            print("output shape : {}".format(currShape))
+            if("param" in dir(layer)):
+                n_params += layer.param
+                print("param : {}".format(layer.param))
+            print("-----------------------")
+        print("Total params : {}".format(n_params))
+        print("\n")
+

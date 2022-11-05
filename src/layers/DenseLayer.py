@@ -5,7 +5,7 @@ from src.utils.utils import sigmoid, ReLU
 class DenseLayer:
     # MILESTONE A
 
-    def __init__(self, output_size, activation, batch_size=10, input_size=10, testing=False, is_output_layer=False):
+    def __init__(self, output_size, activation='linear', batch_size=10, input_size=10, testing=False, is_output_layer=False):
         # type checking
         if (not isinstance(batch_size, int)):
             raise TypeError('DenseLayer batch_size must be an integer')
@@ -22,12 +22,16 @@ class DenseLayer:
         self.output_size = output_size
         self.testing = testing
         self.is_output_layer = is_output_layer
+        self.outputShape = (None, output_size)
+        self.param = input_size*output_size + output_size
         
         self.activation_name = activation
         if(activation == 'sigmoid'):
             self.activation = sigmoid
         elif(activation == 'relu'):
             self.activation = ReLU
+        elif(activation == 'linear'):
+            self.activation = 'linear'
         else:
             raise ValueError('Unknown activation function'+self.activation)
         
@@ -82,6 +86,8 @@ class DenseLayer:
         return np.array([input_times_weight + self.biases for input_times_weight in inputs_times_weights])
 
     def _run_activation_function(self, nets):
+        if(self.activation_name == 'linear'):
+            return nets
         return np.vectorize(self.activation)(nets)
 
     # MILESTONE B

@@ -34,6 +34,9 @@ class LSTMLayer:
         self.h_now = self._initialize_array_zeros(num_cells)
         self.C_now = self._initialize_array_zeros(num_cells)
 
+        self.outputShape =(None, num_cells)
+        self.param = 4 * num_cells * (input_size + num_cells + 1)
+
     def _initialize_matrix_random(self, n_rows, n_columns):
         return np.random.uniform(low=-1, high=1, size=(n_rows, n_columns))
 
@@ -65,7 +68,7 @@ class LSTMLayer:
             self.h_before = self.h_now
         
         # return hidden state terakhir
-        return self.h_now
+        return [self.h_now]
 
     def _calculate_Ft(self, timestep_input):
         netFt = self._calculate_net('forget', timestep_input)
@@ -77,8 +80,6 @@ class LSTMLayer:
 
     def _calculate_Cddt(self, timestep_input):
         netCddt = self._calculate_net('candidate', timestep_input)
-        print("netCddt yagesya")
-        print(netCddt)
         self.Cddt = np.vectorize(tanh)(netCddt)
 
     def _calculate_Ot(self, timestep_input):
@@ -106,23 +107,15 @@ class LSTMLayer:
             raise TypeError('Unrecognized LSTM cell type')
 
         Ux = np.array([sum(s) for s in U*timestep_input])
-        # print("UX YGY")
-        # print(Ux)
         Wh_before = np.array([sum(s) for s in W*self.h_before])
-        # print("WHBEFORE YGY")
-        # print(Wh_before)
-        # print('B YGY')
-        # print(b)
         
         return Ux + Wh_before + b
 
     def _calculate_CellState(self):
         self.C_now = (self.Ft * self.C_before) + (self.It * self.Cddt)
-        print(self.C_now)
 
     def _calculate_HiddenState(self):
         self.h_now = self.Ot * np.vectorize(sigmoid)(self.C_now)
-        print(self.h_now)
 
 # my star, my perfect silence
 # ===================

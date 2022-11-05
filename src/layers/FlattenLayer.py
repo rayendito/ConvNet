@@ -4,6 +4,7 @@ import numpy as np
 class FlattenLayer:
     def __init__(self):
         self.layer_type = "Flatten"
+        self.param = 0
 
     def calculate(self, inputs):
         self.inputs = inputs
