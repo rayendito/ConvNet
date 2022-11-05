@@ -29,8 +29,8 @@ model.addLayer(DenseLayer(1, "sigmoid", batch_size=40, input_size=16, is_output_
 # print(outputs)
 
 # 90-10 split
-# x_train, x_test = np.split(catsndogs, [int(.9*len(catsndogs))])
-# y_train, y_test = np.split(labels, [int(.9*len(labels))])
+x_train, x_test = np.split(catsndogs, [int(.9*len(catsndogs))])
+y_train, y_test = np.split(labels, [int(.9*len(labels))])
 # print("training model...")
 # model.compile_model(10e-3, 0)
 # model.fit(x_train, y_train, batch_size=4, epoch=2)
@@ -40,6 +40,7 @@ model.addLayer(DenseLayer(1, "sigmoid", batch_size=40, input_size=16, is_output_
 # print(classification_report(np.array(y_test), np.array(outputs)))
 
 # 10 fold cross validation
+
 outputs2 = []
 y_test_total = []
 for i in range(10):
