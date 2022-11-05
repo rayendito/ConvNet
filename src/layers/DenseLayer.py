@@ -5,7 +5,7 @@ from src.utils.utils import sigmoid, ReLU
 class DenseLayer:
     # MILESTONE A
 
-    def __init__(self, output_size, activation, batch_size=10, input_size=10, testing=False, is_output_layer=False):
+    def __init__(self, output_size, activation='linear', batch_size=10, input_size=10, testing=False, is_output_layer=False):
         # type checking
         if (not isinstance(batch_size, int)):
             raise TypeError('DenseLayer batch_size must be an integer')
@@ -30,6 +30,8 @@ class DenseLayer:
             self.activation = sigmoid
         elif(activation == 'relu'):
             self.activation = ReLU
+        elif(activation == 'linear'):
+            self.activation = 'linear'
         else:
             raise ValueError('Unknown activation function'+self.activation)
         
@@ -65,7 +67,7 @@ class DenseLayer:
             self.biases = self._test_initialize_biases(self.output_size) if (self.testing) else self._initialize_biases(self.output_size)
 
     def _initialize_weights(self, input_size, output_size):
-        return np.random.uniform(low=-1, high=1, size=(output_size,input_size))
+        return np.random.uniform(low=-0.1, high=0.1, size=(output_size,input_size))
     
     def _test_initialize_weights(self, input_size, output_size):
         return np.array([[0.1]*input_size]*output_size)
@@ -83,6 +85,8 @@ class DenseLayer:
         return np.array([input_times_weight + self.biases for input_times_weight in inputs_times_weights])
 
     def _run_activation_function(self, nets):
+        if(self.activation_name == 'linear'):
+            return nets
         return np.vectorize(self.activation)(nets)
 
     # MILESTONE B
