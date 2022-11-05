@@ -11,7 +11,6 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
 dataset = load_cats_and_dogs()
-print("DATA LOADED\n")
 
 catsndogs = np.array(dataset["data"], dtype=object)/255
 labels = np.array(dataset["labels"])
