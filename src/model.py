@@ -55,6 +55,7 @@ class Model:
 
     def fit(self, inputs, labels, batch_size=4, epoch=5):
         for i in range(epoch):
+            print(i)
             for j in range(0, len(inputs), batch_size):
                 begin = j
                 end = min(j+batch_size, len(inputs))

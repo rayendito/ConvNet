@@ -73,8 +73,8 @@ class DenseLayer:
         return np.array([[0.1]*input_size]*output_size)
 
     def _initialize_biases(self, output_size):
-        return np.zeros(output_size)
-        return np.random.uniform(low=-1, high=1, size=output_size)
+        # return np.zeros(output_size)
+        return np.random.uniform(low=-0.001, high=0.001, size=output_size)
 
     def _test_initialize_biases(self, output_size):
         return np.array([0.2]*output_size)
@@ -113,12 +113,12 @@ class DenseLayer:
                 weight_update = lr*element*err_term_on_that_input
                 weight_updates.append(weight_update)
             w_update = np.transpose(weight_updates) + momentum*self.last_update_weights
-            self.weights += w_update
-            sum_update_weight += w_update
+            self.weights += np.sum(w_update, axis=0)
+            sum_update_weight += np.sum(w_update, axis=0)
 
-            b_update = (lr*err_term_on_that_input + momentum*self.last_update_biases)*0
-            self.biases += b_update
-            sum_update_bias += b_update
+            b_update = (lr*err_term_on_that_input + momentum*self.last_update_biases)
+            self.biases += np.sum(b_update, axis=0)
+            sum_update_bias += np.sum(b_update, axis=0)
         
         self.last_update_weights = sum_update_weight
         self.last_update_biases = sum_update_bias
@@ -148,8 +148,9 @@ class DenseLayer:
         sum_expressions = []
         preceding_weights = np.transpose(preceding_weights)
         for err in preceding_error_term:
-            sum_expressions.append([np.dot(err, weight) for weight in preceding_weights])
-        return np.array(sum_expressions)
+            # sum_expressions.append([np.dot(err, weight) for weight in preceding_weights])
+            sum_expressions.append([err*weight.T for weight in preceding_weights])
+        return np.sum(np.array(sum_expressions), axis=2)
     
     # ACTIVATION FUNCTION DERIVATIVE
 

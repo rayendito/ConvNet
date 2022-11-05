@@ -104,24 +104,9 @@ class PoolingLayer:
         elif (self.mode == PoolingLayer.AVG):
             self.derivatives = np.array([[[[1/(self.size*self.size) for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs])
         
-        self.error_term = [[] for _ in range(len(self.derivatives))]
-        for i, nest_1 in enumerate(self.derivatives):
-            temp_1 = [[] for _ in range(len(nest_1))]
-            for j, nest_2 in enumerate(nest_1):
-                temp_2 = [[] for _ in range(len(nest_2))]
-                for k, nest_3 in enumerate(nest_2):
-                    # print((preceding_weights*np.sum(preceding_error_term.T)).T.shape)
-                    sum_term = np.sum((preceding_weights*np.sum(preceding_error_term.T)).T, axis=0)
-                    # print(sum_term.shape)
-                    # print(nest_3.shape)
-                    temp_3 = nest_3*np.array([sum_term[k+k*l] for l in range(len(nest_3))])
-                    temp_2[k] = temp_3
-                
-                temp_1[j] = temp_2
-            
-            self.error_term[i] = temp_1
-
-        # self.error_term = np.array([[[nest_3*np.sum((preceding_weights*preceding_error_term.T).T, axis=0) for nest_3 in nest_2] for nest_2 in nest_1] for nest_1 in self.derivatives])
+        sum_term = np.sum((preceding_weights*np.sum(preceding_error_term.T)).T, axis=0)
+        self.error_term = np.array([[[nest_3*np.array([sum_term[k+k*l] for l in range(len(nest_3))]) for k, nest_3 in enumerate(nest_2)] for j, nest_2 in enumerate(nest_1)] for i, nest_1 in enumerate(self.derivatives)])
+        
         self.weights = None
     
     def get_all_weights(self):

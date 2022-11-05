@@ -11,8 +11,8 @@ class ConvLayer:
         self.padding = padding
         self.input_shape = input_shape
         # self.output_shape = self.calculate_output_size()
-        self.bias = np.random.rand(self.n_filters)
-        self.bias = np.zeros(self.n_filters)
+        self.bias = np.random.rand(self.n_filters)/100
+        # self.bias = np.zeros(self.n_filters)
         self.input = []
         self.output = []
         self.layer_type = "Convolution"
@@ -106,11 +106,11 @@ class ConvLayer:
                     for k, nest_3 in enumerate(nest_2):
                         for l, nest_4 in enumerate(weight_updates[k]):
                             # deltas have duplicate error term at channel level
-                            weight_updates[k][l] = np.add(weight_updates[k][l], lr*nest_3*err_term_on_that_input[i][j][k], out=weight_updates[k], casting="unsafe")
+                            weight_updates[k][l] = np.add(weight_updates[k][l], lr*nest_3*err_term_on_that_input[i][j][k], out=weight_updates[k][l], casting="unsafe")
             # print(weight_updates)
             self.kernel += np.array(weight_updates, dtype=float)
 
-            self.bias += (np.array([np.sum(err_term_on_that_input[i]) for i in range(self.n_filters)]))*0
+            self.bias += (np.array([np.sum(err_term_on_that_input[i]) for i in range(self.n_filters)]))
 
     # CONVOLUTION LAYER ERROR TERM
 
