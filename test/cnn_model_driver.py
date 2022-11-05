@@ -60,8 +60,8 @@ for i in range(10):
     x_test2 = catsndogs[i*len(catsndogs)//10:(i+1)*len(catsndogs)//10]
     y_test2 = labels[i*len(labels)//10:(i+1)*len(labels)//10]
     model2.fit(x_train2, y_train2, batch_size=4, epoch=2)
-    outputs2.append(model.predict(x_test))
-    y_test_total += y_test2
+    outputs2 += list(model.predict(x_test))
+    y_test_total += list(y_test2)
 
 print("10 fold cross validation test result:")
 print(confusion_matrix(np.array(y_test_total), np.array(outputs2)))
