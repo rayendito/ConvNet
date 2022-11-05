@@ -73,6 +73,7 @@ class DenseLayer:
         return np.array([[0.1]*input_size]*output_size)
 
     def _initialize_biases(self, output_size):
+        return np.zeros(output_size)
         return np.random.uniform(low=-1, high=1, size=output_size)
 
     def _test_initialize_biases(self, output_size):
@@ -109,14 +110,13 @@ class DenseLayer:
             err_term_on_that_input = error_term[idx]
             weight_updates = []
             for element in inp:
-                weight_update = -1*lr*element*err_term_on_that_input
+                weight_update = lr*element*err_term_on_that_input
                 weight_updates.append(weight_update)
-
             w_update = np.transpose(weight_updates) + momentum*self.last_update_weights
             self.weights += w_update
             sum_update_weight += w_update
 
-            b_update = lr*err_term_on_that_input + momentum*self.last_update_biases
+            b_update = (lr*err_term_on_that_input + momentum*self.last_update_biases)*0
             self.biases += b_update
             sum_update_bias += b_update
         
