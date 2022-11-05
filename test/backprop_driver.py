@@ -31,13 +31,10 @@ x_train = np.array(np.random.rand(4, 10, 10, 1))
 # W3 = np.insert(w3, 0, b3, axis=1)
 
 output = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]])
-output = np.array(np.round(np.random.rand(4, 1)), dtype=float)
+output = np.array(np.round(np.random.rand(4, 4)), dtype=float)
 print("TARGET:")
 print(output)
 print()
-
-for x, y in zip(x_train, output):
-    x += 0.5*y
 
 # CREATE MODEL
 model = Model()
@@ -46,7 +43,7 @@ model.addLayer(ConvLayer(2, 3, (10, 10, 1), stride=1, padding=0))
 model.addLayer(PoolingLayer(2, "MAX"))
 model.addLayer(FlattenLayer())
 model.addLayer(DenseLayer(16, "relu", batch_size=4, input_size=32))
-model.addLayer(DenseLayer(1, "sigmoid", batch_size=4, input_size=16, is_output_layer=True))
+model.addLayer(DenseLayer(4, "sigmoid", batch_size=4, input_size=16, is_output_layer=True))
 
 # model.layers[0].kernel = np.array(w1, dtype=float)
 # model.layers[0].bias = np.array(b1, dtype=float)
@@ -75,8 +72,8 @@ print(a)
 print("TARGET:")
 print(output)
 
-for layer in model.layers:
-    print(layer.get_all_weights())
+# for layer in model.layers:
+#     print(layer.get_all_weights())
 
 # model.fit(x_train, output, 1, 100)
 
