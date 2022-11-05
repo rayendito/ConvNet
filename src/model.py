@@ -10,18 +10,29 @@ class Model:
         self.layers.append(layer)
 
     def forwardProp(self, inputs):
-        print()
+        self.verbose = False
+        if self.verbose:
+            print("----------")
         self.inputs = inputs
         x = np.array(self.inputs)
 
         for layer in self.layers:
             # if Model.checkShape(x, layer):
             x = layer.calculate(x)
+            if self.verbose:
+                print()
+                print(x)
+        
+        if self.verbose:
+            print()
+            print(np.round(x))
 
         return x
 
     def predict(self, inputs):
         self.outputs = self.forwardProp(inputs)
+        if self.verbose:
+            print(self.outputs)
         self.preds = np.round(self.outputs)
 
         if (len(self.preds[0]) == 1):
@@ -46,7 +57,7 @@ class Model:
         for i in range(epoch):
             for j in range(0, len(inputs), batch_size):
                 begin = j
-                end = max(j+batch_size, len(inputs))
+                end = min(j+batch_size, len(inputs))
                 self.forwardProp(inputs[begin:end])
 
                 for i in range(len(self.layers)-1, -1, -1):

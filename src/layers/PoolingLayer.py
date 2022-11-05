@@ -40,8 +40,6 @@ class PoolingLayer:
         # public method calculate
         self.inputs = inputs
         self.outputs = self._pool(self.inputs)
-        print("---------")
-        print(self.outputs)
 
         return self.outputs
 
@@ -101,19 +99,21 @@ class PoolingLayer:
 
                                     # calculate pooling result
                                     max_i, max_j = np.unravel_index(currMatrix.argmax(), currMatrix.shape)
-                                    self.derivatives[cs][max_i][max_j][c] = 1
+                                    self.derivatives[cs][i+max_i][j+max_j][c] = 1
         elif (self.mode == PoolingLayer.AVG):
             self.derivatives = np.array([[[[1/(self.size*self.size) for _ in range(len(channels[0][0]))] for _ in range(0, len(channels[0]))] for _ in range(0, len(channels))] for channels in self.inputs])
         
         self.error_term = [[] for _ in range(len(self.derivatives))]
-
         for i, nest_1 in enumerate(self.derivatives):
             temp_1 = [[] for _ in range(len(nest_1))]
             for j, nest_2 in enumerate(nest_1):
                 temp_2 = [[] for _ in range(len(nest_2))]
                 for k, nest_3 in enumerate(nest_2):
-                    sum_term = (preceding_weights*np.sum(preceding_error_term.T)).T
-                    temp_3 = nest_3*np.sum(sum_term, axis=0)
+                    # print((preceding_weights*np.sum(preceding_error_term.T)).T.shape)
+                    sum_term = np.sum((preceding_weights*np.sum(preceding_error_term.T)).T, axis=0)
+                    # print(sum_term.shape)
+                    # print(nest_3.shape)
+                    temp_3 = nest_3*np.array([sum_term[k+k*l] for l in range(len(nest_3))])
                     temp_2[k] = temp_3
                 
                 temp_1[j] = temp_2

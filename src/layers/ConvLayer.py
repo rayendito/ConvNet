@@ -5,13 +5,14 @@ class ConvLayer:
     def __init__(self,n_filters,kernel_size,input_shape,stride=1,padding=0,):
         self.n_filters = n_filters
         self.kernel_size = kernel_size
-        self.kernel = np.random.rand(n_filters,input_shape[2],kernel_size,kernel_size)
+        self.kernel = (np.random.rand(n_filters,input_shape[2],kernel_size,kernel_size)-0.5)
         self.stride = stride
         self.activation = ReLU
         self.padding = padding
         self.input_shape = input_shape
         # self.output_shape = self.calculate_output_size()
         self.bias = np.random.rand(self.n_filters)
+        self.bias = np.zeros(self.n_filters)
         self.input = []
         self.output = []
         self.layer_type = "Convolution"
@@ -85,6 +86,7 @@ class ConvLayer:
         
         if(preceding_error_term is None):
             raise ValueError('hidden layer weight update requires preceding error terms and preceding weights')
+        # print(np.sum(preceding_error_term), np.sum(preceding_weights))
         error_term = self._calculate_error_term_conv(preceding_error_term, preceding_weights, preceding_layer_type)
 
         for idx, inp in enumerate(self.input):
@@ -92,6 +94,9 @@ class ConvLayer:
             conv_derivative = self._convolution_derivative(inp)
 
             weight_updates = np.zeros(self.kernel.shape)
+            # print("---")
+            # print(conv_derivative)
+            # print(err_term_on_that_input)
 
             for i, nest_1 in enumerate(conv_derivative):
                 for j, nest_2 in enumerate(nest_1):
@@ -99,11 +104,11 @@ class ConvLayer:
                     for k, nest_3 in enumerate(nest_2):
                         for l, nest_4 in enumerate(weight_updates[k]):
                             # deltas have duplicate error term at channel level
-                            np.add(weight_updates[k][l], lr*nest_3*err_term_on_that_input[i][j][k], out=weight_updates[k], casting="unsafe")
-
+                            weight_updates[k][l] = np.add(weight_updates[k][l], lr*nest_3*err_term_on_that_input[i][j][k], out=weight_updates[k], casting="unsafe")
+            # print(weight_updates)
             self.kernel += np.array(weight_updates, dtype=float)
 
-            self.bias += np.array([np.sum(err_term_on_that_input[i]) for i in range(self.n_filters)])
+            self.bias += (np.array([np.sum(err_term_on_that_input[i]) for i in range(self.n_filters)]))*0
 
     # CONVOLUTION LAYER ERROR TERM
 
@@ -157,7 +162,7 @@ class ConvLayer:
         return self.error_term
 
     def get_weights(self):
-        return self.weights
+        return self.get_all_weights()
 
     def get_all_weights(self):
-        return self.weights
+        return self.kernel

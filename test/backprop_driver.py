@@ -14,6 +14,9 @@ image4 = [[[2], [5], [4], [0], [3]], [[4], [3], [0], [1], [1]], [[1], [4], [4], 
 
 x_train = np.array([image1, image2, image3, image4])
 
+x_train = np.array(np.random.rand(4, 10, 10, 1))
+# print(x_train)
+
 # w1 = [[[1, 2, 3], [4, 7, 5], [3, -32, 25]], [[12, 18, 12], [18, -74, 45], [-92, 45, -18]]]
 # b1 = [0, 0]
 
@@ -28,14 +31,22 @@ x_train = np.array([image1, image2, image3, image4])
 # W3 = np.insert(w3, 0, b3, axis=1)
 
 output = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]])
+output = np.array(np.round(np.random.rand(4, 1)), dtype=float)
+print("TARGET:")
+print(output)
+print()
+
+for x, y in zip(x_train, output):
+    x += 0.5*y
 
 # CREATE MODEL
 model = Model()
-model.addLayer(ConvLayer(2, 3, (5, 5, 1), stride=1, padding=0))
-model.addLayer(PoolingLayer(3, "MAX"))
+model.addLayer(ConvLayer(2, 3, (10, 10, 1), stride=1, padding=0))
+# model.addLayer(ConvLayer(2, 4, (9, 9, 2), stride=1, padding=0))
+model.addLayer(PoolingLayer(2, "MAX"))
 model.addLayer(FlattenLayer())
-model.addLayer(DenseLayer(2, "sigmoid", batch_size=1, input_size=2))
-model.addLayer(DenseLayer(10, "sigmoid", batch_size=1, input_size=2, is_output_layer=True))
+model.addLayer(DenseLayer(16, "relu", batch_size=4, input_size=32))
+model.addLayer(DenseLayer(1, "sigmoid", batch_size=4, input_size=16, is_output_layer=True))
 
 # model.layers[0].kernel = np.array(w1, dtype=float)
 # model.layers[0].bias = np.array(b1, dtype=float)
@@ -45,7 +56,7 @@ model.addLayer(DenseLayer(10, "sigmoid", batch_size=1, input_size=2, is_output_l
 # model.layers[4].bias = np.array(b3, dtype=float)
 
 
-model.compile_model(10e-3, 0)
+model.compile_model(10e-2, 0)
 # print(model.layers[0].kernel)
 
 a = model.predict(x_train)
@@ -53,7 +64,7 @@ print("CHECKPOINT 0 :")
 print(a)
 
 for i in range(10):
-    model.fit(x_train, output, 1, 10)
+    model.fit(x_train, output, 4, 100)
 
     a = model.predict(x_train)
     print("CHECKPOINT", i+1, ":")
@@ -63,6 +74,9 @@ print("\nFINAL:")
 print(a)
 print("TARGET:")
 print(output)
+
+for layer in model.layers:
+    print(layer.get_all_weights())
 
 # model.fit(x_train, output, 1, 100)
 
