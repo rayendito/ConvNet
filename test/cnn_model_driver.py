@@ -29,15 +29,15 @@ model.addLayer(DenseLayer(1, "sigmoid", batch_size=40, input_size=16, is_output_
 # print(outputs)
 
 # 90-10 split
-x_train, x_test = np.split(catsndogs, [int(.9*len(catsndogs))])
-y_train, y_test = np.split(labels, [int(.9*len(labels))])
-print("training model...")
-model.compile_model(10e-3, 0)
-model.fit(x_train, y_train, batch_size=4, epoch=2)
-outputs = model.predict(x_test)
-print("90-10 split test result:")   
-print(confusion_matrix(np.array(y_test), np.array(outputs)))
-print(classification_report(np.array(y_test), np.array(outputs)))
+# x_train, x_test = np.split(catsndogs, [int(.9*len(catsndogs))])
+# y_train, y_test = np.split(labels, [int(.9*len(labels))])
+# print("training model...")
+# model.compile_model(10e-3, 0)
+# model.fit(x_train, y_train, batch_size=4, epoch=2)
+# outputs = model.predict(x_test)
+# print("90-10 split test result:")   
+# print(confusion_matrix(np.array(y_test), np.array(outputs)))
+# print(classification_report(np.array(y_test), np.array(outputs)))
 
 # 10 fold cross validation
 outputs2 = []
@@ -58,9 +58,11 @@ for i in range(10):
     y_train2 = np.concatenate((labels[:i*len(labels)//10], labels[(i+1)*len(labels)//10:]))
     x_test2 = catsndogs[i*len(catsndogs)//10:(i+1)*len(catsndogs)//10]
     y_test2 = labels[i*len(labels)//10:(i+1)*len(labels)//10]
-    model2.fit(x_train2, y_train2, batch_size=4, epoch=5)
-    outputs2 += model.predict(x_test)
+    model2.fit(x_train2, y_train2, batch_size=4, epoch=2)
+    outputs2.append(model.predict(x_test))
     y_test_total += y_test2
 
 print("10 fold cross validation test result:")
 print(confusion_matrix(np.array(y_test_total), np.array(outputs2)))
+print("Classification report:")
+print(classification_report(np.array(y_test_total), np.array(outputs2)))
